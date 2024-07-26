@@ -11,7 +11,7 @@ const uploadFiles = async (fileBuffers) => {
     try {
         const urls = await Promise.all(fileBuffers.map(fileBuffer =>
             new Promise((resolve, reject) => {
-                const uploadOptions = { folder: "Product-images" };
+                const uploadOptions = { folder: "Elegance-productImages" };
                 const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
                     if (error) {
                         console.error("Cloudinary upload error:", error.message);

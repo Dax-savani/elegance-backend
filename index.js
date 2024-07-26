@@ -12,6 +12,7 @@ const authRouter = require("./routes/auth");
 const productRouter = require("./routes/product");
 const cartRouter = require("./routes/cart");
 const orderRouter = require("./routes/order");
+const wishlistRouter = require("./routes/wishlist");
 
 //connection to database
 connectionDB(process.env.DB_CONNECTION_STRING);
@@ -26,13 +27,14 @@ app.use(express.urlencoded({extended: false}));
 //Routes
 
 app.get("/", (req, res) => {
-    res.send("Hello From Server");
+    res.send("Hello From Server this is elegance backend");
 });
 
 app.use("/api/user", authRouter);
 app.use("/api/product", auth, productRouter);
 app.use("/api/cart", auth, cartRouter);
 app.use("/api/order", auth, orderRouter);
+app.use("/api/wishlist", auth, wishlistRouter);
 
 
 app.use(notFound);
