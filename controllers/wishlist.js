@@ -1,4 +1,5 @@
 const Wishlist = require('../models/wishlist');
+const Product = require('../models/product');
 const asyncHandler = require("express-async-handler");
 
 const handleGetWishlist = asyncHandler(async (req,res) => {
@@ -8,6 +9,8 @@ const handleGetWishlist = asyncHandler(async (req,res) => {
 
 const handleAddWishlist = asyncHandler(async (req, res) => {
     const {product_id} = req.body;
+    const findProduct = Product.findById(product_id);
+    if(!findProduct) return  res.status(400).json({status:400,message: 'Product not found'});
     try {
         const newWishlist = await Wishlist.create({
             user_id: req.user._id,

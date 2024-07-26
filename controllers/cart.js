@@ -1,4 +1,5 @@
 const Cart = require('../models/cart');
+const Product = require('../models/product');
 const asyncHandler = require("express-async-handler");
 
 const handleGetCart = asyncHandler(async (req,res) => {
@@ -19,6 +20,10 @@ const handleGetSingleCart = asyncHandler(async (req,res) => {
 
 const handleAddCart = asyncHandler(async (req, res) => {
     const {product_id, qty} = req.body;
+
+    const findProduct = Product.findById(product_id);
+    if(!findProduct) return  res.status(400).json({status:400,message: 'Product not found'});
+
     try {
         const newCart = await Cart.create({
             user_id: req.user._id,
