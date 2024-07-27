@@ -13,13 +13,14 @@ const productRouter = require("./routes/product");
 const cartRouter = require("./routes/cart");
 const orderRouter = require("./routes/order");
 const wishlistRouter = require("./routes/wishlist");
+const cors = require('cors');
 
 //connection to database
 connectionDB(process.env.DB_CONNECTION_STRING);
 
 //Middlewares
 
-
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: false}));
