@@ -1,86 +1,49 @@
 const mongoose = require("mongoose");
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
-
-const colorSchema = new Schema({
-        color: {
-            type: String,
-            required: true,
-        },
-        hex: {
-            type: String,
-            required: true
-        }
-    }, {
-        _id: false
-    }
-)
-
-const sizeSchema = new Schema({
-    size: {
+const productDetailSchema = new Schema({
+    detail_1: {
         type: String,
         required: true,
-        enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
     },
-    stock: {
-        type: Number,
+    detail_2: {
+        type: String,
         required: true,
-        default: 0,
     },
-    price: {
-        type: Number,
-        required: true
-    }
 }, {
     _id: false
-})
+});
 
-// const imageSchema = new Schema({
-//     url: {
-//         type: String,
-//         // required: true,
-//     }
-// }, {
-//     _id: false
-// })
+const productPriceSchema = new Schema({
+    orignal_price: {
+        type: String,
+        required: true,
+    },
+    discounted_price: {
+        type: String,
+        required: true,
+    },
+}, {
+    _id: false
+});
 
 const productSchema = new Schema({
     title: {
         type: String,
         required: true
     },
-    description: {
-        type: String,
+    product_details: {
+        type: productDetailSchema,
         required: true
     },
-    color_options: {
-        type: [colorSchema],
-        required: true,
-        validate: {
-            validator: function (value) {
-                return value.length > 0;
-            },
-            message: "At least one Color option is required."
-        }
+    price: {
+       type: productPriceSchema,
+        required: true
     },
-    size_options: {
-        type: [sizeSchema],
-        required: true,
-        validate: {
-            validator: function (value) {
-                return value.length > 0;
-            },
-            message: 'At least one size option is required.'
-        }
-    },
-    instruction: {
-        type: String,
-        required: false
-    },
-    qty: {
+    stock: {
         type: Number,
         required: true,
-        default: 1
+        default: 0
     },
     category: {
         type: String,
@@ -90,25 +53,51 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-    other_info: {
-        type: Object,
-        required: false
-    },
     gender: {
         type: String,
-        enum: ['male', 'female', 'unisex']
+        required: true,
+        enum: ['Male', 'Female', 'Unisex'],
+        validate: {
+            validator: function(v) {
+                return ['Male', 'Female', 'Unisex'].includes(v);
+            },
+            message: '{VALUE} is not a valid gender'
+        }
+    },
+    gold_purity: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 24,
+        validate: {
+            validator: Number.isInteger,
+            message: '{VALUE} is not an integer value'
+        }
+    },
+    gross_weight: {
+        type: [Number],
+        required: true,
+        validate: {
+            validator: function(v) {
+                return v.every(weight => weight > 0);
+            },
+            message: 'Each weight in the array must be a positive number'
+        }
     },
     product_images: {
         type: [String],
         required: true,
         validate: {
-            validator: function (value) {
+            validator: function(value) {
                 return value.length > 0;
             },
             message: "At least one product image is required."
         }
-    }
-}, {timestamps: true});
-
+    },
+    product_specifications: {
+        type: Object,
+        required: true
+    },
+}, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);

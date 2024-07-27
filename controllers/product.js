@@ -21,13 +21,15 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
     try {
         const {
             title,
-            description,
-            size_options,
-            color_options,
+            product_details,
+            stock,
+            gold_purity,
+            gross_weight,
             instruction,
-            qty,
+            price,
             category,
             sub_category,
+            product_specifications,
             gender,
         } = req.body;
 
@@ -39,11 +41,13 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
 
         const createdProduct = await Product.create({
             title,
-            description,
-            size_options: JSON.parse(size_options),
-            color_options: JSON.parse(color_options),
+            product_details: JSON.parse(product_details),
+            stock,
+            gold_purity,
+            gross_weight,
             instruction,
-            qty,
+            price: JSON.parse(price),
+            product_specifications: JSON.parse(product_specifications),
             category,
             sub_category,
             gender,
@@ -52,8 +56,7 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
 
         return res.status(201).json(createdProduct);
     } catch (error) {
-        console.error("Error creating product:", error.message);
-        return res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({message: "Internal Server Error", error: error.message});
     }
 });
 
@@ -61,19 +64,20 @@ const handleEditProduct = asyncHandler(async (req, res) => {
     const {productId} = req.params;
     const {
         title,
-        description,
-        size_options,
-        color_options,
+        product_details,
+        stock,
+        gold_purity,
+        gross_weight,
         instruction,
-        qty,
+        price,
         category,
         sub_category,
-        gender
+        product_specifications,
+        gender,
     } = req.body;
 
     const files = req.files;
     let imageUrls = []
-
     if (files && files.length > 0) {
         const fileBuffers = files.map(file => file.buffer);
         imageUrls = await uploadFiles(fileBuffers);
@@ -81,16 +85,17 @@ const handleEditProduct = asyncHandler(async (req, res) => {
     try {
         const updatedProduct = await Product.findByIdAndUpdate(productId, {
             title,
-            description,
-            size_options: size_options ? JSON.parse(size_options) : undefined,
-            color_options: color_options ? JSON.parse(color_options) : undefined,
+            product_details: JSON.parse(product_details),
+            stock,
+            gold_purity,
+            gross_weight,
             instruction,
-            qty,
+            price: JSON.parse(price),
+            product_specifications: JSON.parse(product_specifications),
             category,
             sub_category,
             gender,
-            product_images: imageUrls
-            // ...(imageUrls.length > 0 && {product_images: imageUrls})
+            product_images: imageUrls,
         }, {runValidators: true, new: true});
 
         if (updatedProduct) {
