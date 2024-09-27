@@ -4,7 +4,7 @@ const asyncHandler = require("express-async-handler");
 
 const handleGetCart = asyncHandler(async (req,res) => {
     const cartProducts = await Cart.find().populate('product_id');
-    return res.json(cartProducts);
+    return res.status(200).json(cartProducts);
 })
 
 const handleGetSingleCart = asyncHandler(async (req,res) => {

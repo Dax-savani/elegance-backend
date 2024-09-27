@@ -1,4 +1,5 @@
 const Order = require('../models/order');
+const Product = require('../models/product');
 const asyncHandler = require("express-async-handler");
 
 const handleGetOrder = asyncHandler(async (req, res) => {
@@ -18,23 +19,44 @@ const handleGetSingleOrder = asyncHandler(async (req, res) => {
 
 
 const handleAddOrder = asyncHandler(async (req, res) => {
-    const {product_id, qty, status} = req.body;
+    const { product_id, qty, status } = req.body;
+
     try {
+        // Check if the product exists
+        const product = await Product.findById(product_id);
+        if (!product) {
+            return res.status(404).json({
+                status: 404,
+                message: 'Product not found'
+            });
+        }
+        const findedProductinOrder = await Order.findOne({  product_id });
+        if (findedProductinOrder) {
+            return res.status(400).json({
+                status: 400,
+                message: 'Product is already in ordered'
+            });
+        }
+
         const newOrder = await Order.create({
             user_id: req.user._id,
             product_id,
             qty,
             status
-        })
-        return res.status(201).json({status: 201, message: 'Order placed Successfully', data: newOrder})
+        });
+
+        return res.status(201).json({
+            status: 201,
+            message: 'Order placed successfully',
+            data: newOrder
+        });
     } catch (err) {
         return res.status(500).json({
             status: 500,
-            message: 'Fail to Order',
+            message: 'Failed to place order',
             error: err.message
-        })
+        });
     }
-    return res.json(req.user._id);
 });
 
 const handleEditOrder = asyncHandler(async (req, res) => {
