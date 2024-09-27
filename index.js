@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", authRouter);
-app.use("/api/product", auth, productRouter);
+app.use("/api/product",  productRouter);
 app.use("/api/cart", auth, cartRouter);
 app.use("/api/order", auth, orderRouter);
 app.use("/api/wishlist", auth, wishlistRouter);

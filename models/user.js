@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
   },
   dob: {
     type: Date,
-    required: true,
+    default: null
   },
   phone_number: {
     type: String,

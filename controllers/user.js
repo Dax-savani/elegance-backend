@@ -30,7 +30,7 @@ const handleLoginCtrl = asyncHandler(async (req, res) => {
 
     const authToken = generateToken(findUser?._id)
 
-    res.cookie("auth", authToken, {httpOnly: true, secure: true});
+    res.cookie("token", authToken);
 
     const user = {
         first_name: findUser?.first_name,
