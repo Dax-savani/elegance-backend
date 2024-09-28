@@ -3,15 +3,28 @@ const Product = require('../models/product');
 const asyncHandler = require("express-async-handler");
 
 const handleGetCart = asyncHandler(async (req,res) => {
-    const cartProducts = await Cart.find().populate('product_id');
-    return res.status(200).json(cartProducts);
+    try {
+        const userId = req.user._id;
+
+        const cartProducts = await Cart.find({ user_id: userId })
+            .populate('product_id')
+            .exec();
+
+        return res.status(200).json(cartProducts);
+    } catch (error) {
+        console.error("Error fetching cart products: ", error);
+        return res.status(500).json({
+            status: 'error',
+            message: 'Failed to fetch cart products'
+        });
+    }
 })
 
 const handleGetSingleCart = asyncHandler(async (req,res) => {
     const {cartId} = req.params;
     const cartProduct = await Cart.findById(cartId).populate('product_id');
     if(!cartProduct) {
-        res.status(404)
+        res.status(404);
         throw new Error('Cart item not found');
     }
     return res.json(cartProduct);
@@ -20,10 +33,15 @@ const handleGetSingleCart = asyncHandler(async (req,res) => {
 
 const handleAddCart = asyncHandler(async (req, res) => {
     const {product_id, qty} = req.body;
-
-    const findProduct = Product.findById(product_id);
-    if(!findProduct) return  res.status(400).json({status:400,message: 'Product not found'});
-
+    const findedProduct = await Product.findById(product_id);
+    if(!findedProduct) return res.status(404).json({status: 404,message: "Product not found"});
+    const findedProductinCart = await Cart.findOne({ user_id: req.user._id, product_id });
+    if (findedProductinCart) {
+        return res.status(400).json({
+            status: 400,
+            message: 'Product is already in Cart'
+        });
+    }
     try {
         const newCart = await Cart.create({
             user_id: req.user._id,

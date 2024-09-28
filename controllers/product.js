@@ -21,94 +21,133 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
     try {
         const {
             title,
-            product_details,
-            stock,
-            gold_purity,
-            gross_weight,
-            instruction,
+            thumbnail,
+            pCate,
+            cate,
             price,
-            category,
-            sub_category,
-            product_specifications,
-            gender,
+            salePrice,
+            productType,
+            colorAttribute,
+            shortDes,
+            description
         } = req.body;
 
         const files = req.files;
 
+
         const fileBuffers = files.map(file => file.buffer);
+
 
         const imageUrls = await uploadFiles(fileBuffers);
 
+
+        const parsedColorAttribute = JSON.parse(colorAttribute);
+        const parsedShortDes = JSON.parse(shortDes);
+        const parsedDescription = JSON.parse(description);
+
+
+        for (let i = 0; i < parsedColorAttribute.length; i++) {
+            parsedColorAttribute[i].img = imageUrls[i] || parsedColorAttribute[i].img;
+        }
+
         const createdProduct = await Product.create({
             title,
-            product_details: JSON.parse(product_details),
-            stock,
-            gold_purity,
-            gross_weight,
-            instruction,
-            price: JSON.parse(price),
-            product_specifications: JSON.parse(product_specifications),
-            category,
-            sub_category,
-            gender,
-            product_images: imageUrls,
+            thumbnail,
+            pCate,
+            cate: JSON.parse(cate),
+            price: Number(price),
+            salePrice: Number(salePrice),
+            productType,
+            colorAttribute: parsedColorAttribute,
+            shortDes: parsedShortDes,
+            description: parsedDescription
         });
 
-        return res.status(201).json(createdProduct);
+        return res.status(201).json({
+            status: 'success',
+            data: createdProduct
+        });
     } catch (error) {
-        return res.status(500).json({message: "Internal Server Error", error: error.message});
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal Server Error',
+            error: error.message
+        });
     }
 });
 
 const handleEditProduct = asyncHandler(async (req, res) => {
-    const {productId} = req.params;
+    const { productId } = req.params;
     const {
         title,
-        product_details,
-        stock,
-        gold_purity,
-        gross_weight,
-        instruction,
+        thumbnail,
+        pCate,
+        cate,
         price,
-        category,
-        sub_category,
-        product_specifications,
-        gender,
+        salePrice,
+        productType,
+        colorAttribute,
+        shortDes,
+        description
     } = req.body;
 
     const files = req.files;
-    let imageUrls = []
+    let imageUrls = [];
+
+
     if (files && files.length > 0) {
         const fileBuffers = files.map(file => file.buffer);
         imageUrls = await uploadFiles(fileBuffers);
     }
-    try {
-        const updatedProduct = await Product.findByIdAndUpdate(productId, {
-            title,
-            product_details: JSON.parse(product_details),
-            stock,
-            gold_purity,
-            gross_weight,
-            instruction,
-            price: JSON.parse(price),
-            product_specifications: JSON.parse(product_specifications),
-            category,
-            sub_category,
-            gender,
-            product_images: imageUrls,
-        }, {runValidators: true, new: true});
 
-        if (updatedProduct) {
-            return res.status(200).json({status: 200, message: "Product updated successfully", data: updatedProduct});
-        } else {
-            res.status(404).json({status: 404, message: "Product not found"});
-            throw new Error("Product not found");
+    try {
+
+        const existingProduct = await Product.findById(productId);
+        if (!existingProduct) {
+            return res.status(404).json({ status: 404, message: "Product not found" });
         }
+
+
+        const parsedColorAttribute = JSON.parse(colorAttribute);
+        const parsedShortDes = JSON.parse(shortDes);
+        const parsedDescription = JSON.parse(description);
+
+
+        for (let i = 0; i < parsedColorAttribute.length; i++) {
+
+            parsedColorAttribute[i].img = imageUrls[i] || existingProduct.colorAttribute[i].img;
+        }
+
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            {
+                title,
+                thumbnail,
+                pCate,
+                cate: JSON.parse(cate),
+                price: Number(price),
+                salePrice: Number(salePrice),
+                productType,
+                colorAttribute: parsedColorAttribute,
+                shortDes: parsedShortDes,
+                description: parsedDescription
+            },
+            { runValidators: true, new: true }
+        );
+
+        return res.status(200).json({
+            status: 200,
+            message: "Product updated successfully",
+            data: updatedProduct
+        });
+
     } catch (err) {
-        console.error("Error updating Product", err.message);
-        return res.status(500).json({message: "Failed to update Product", error: err.message})
+        console.error("Error updating product:", err.message);
+        return res.status(500).json({ message: "Failed to update product", error: err.message });
     }
-})
+});
+
 
 const handleDeleteProduct = asyncHandler(async (req, res) => {
     const deletedProduct = await Product.findByIdAndDelete(req.params.productId);
@@ -118,7 +157,6 @@ const handleDeleteProduct = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Product not found');
     }
-    return res.json(deletedProduct)
 })
 
 

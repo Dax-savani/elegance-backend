@@ -3,13 +3,13 @@ const {Schema} = mongoose;
 
 const cartSchema = new Schema({
     user_id : {
-        type: String,
         ref: 'User',
+        type: String,
         required: true,
     },
     product_id: {
-        type: String,
         ref:"Product",
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
     qty: {

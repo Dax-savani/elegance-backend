@@ -9,7 +9,7 @@ const handleGetOrder = asyncHandler(async (req, res) => {
 
 const handleGetSingleOrder = asyncHandler(async (req, res) => {
     const {orderId} = req.params;
-    const orderProduct = await Order.findById(orderId);
+    const orderProduct = await Order.findById(orderId).populate('product_id');
     if (!orderProduct) {
         res.status(404)
         throw new Error('Order not found');
@@ -22,7 +22,6 @@ const handleAddOrder = asyncHandler(async (req, res) => {
     const { product_id, qty, status } = req.body;
 
     try {
-        // Check if the product exists
         const product = await Product.findById(product_id);
         if (!product) {
             return res.status(404).json({
@@ -30,18 +29,17 @@ const handleAddOrder = asyncHandler(async (req, res) => {
                 message: 'Product not found'
             });
         }
-        const findedProductinOrder = await Order.findOne({  product_id });
-        if (findedProductinOrder) {
+        if (!qty || qty < 1) {
             return res.status(400).json({
                 status: 400,
-                message: 'Product is already in ordered'
+                message: 'Quantity must be at least 1'
             });
         }
 
         const newOrder = await Order.create({
             user_id: req.user._id,
             product_id,
-            qty,
+            qty: validQty,
             status
         });
 
@@ -58,6 +56,7 @@ const handleAddOrder = asyncHandler(async (req, res) => {
         });
     }
 });
+
 
 const handleEditOrder = asyncHandler(async (req, res) => {
     try {
