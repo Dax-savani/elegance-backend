@@ -10,19 +10,21 @@ const handleGetOffer = asyncHandler(async (req, res) => {
     });
 })
 
-
-const handleAddOffer = asyncHandler(async (req,res) => {
+const handleAddOffer = asyncHandler(async (req, res) => {
     const files = req.files;
     const fileBuffers = files.map(file => file.buffer);
-    const imageUrls = await uploadFiles(fileBuffers);
-    if(!imageUrls || imageUrls.length <= 0){
-            return res.status(400).json({
-                status: 'error',
-                message: 'Please provide at least 1 image',
-            })
+    const imageUrls = await uploadFiles(fileBuffers);  // Assuming this returns an array of URLs
+
+    if (!imageUrls || imageUrls.length <= 0) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'Please provide at least 1 image',
+        });
     }
+
     try {
-        const offerData = imageUrls.map(url => ({ offer_images: [url] }));
+        // As each `imageUrls` array element is a single string, map directly to the offer
+        const offerData = imageUrls.map(url => ({ offer_images: url }));
 
         const insertedImages = await Offer.insertMany(offerData);
 
@@ -34,7 +36,7 @@ const handleAddOffer = asyncHandler(async (req,res) => {
     } catch (error) {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-})
+});
 
 
 const handleDeleteOffer = asyncHandler(async (req, res) => {
