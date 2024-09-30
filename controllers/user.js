@@ -31,7 +31,7 @@ const handleLoginCtrl = asyncHandler(async (req, res) => {
     const authToken = generateToken(findUser?._id)
 
     res.cookie("token", authToken);
-
+    console.log("asa : ",authToken);
     const user = {
         first_name: findUser?.first_name,
         last_name: findUser?.last_name,
