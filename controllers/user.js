@@ -40,8 +40,10 @@ const handleLoginCtrl = asyncHandler(async (req, res) => {
         email: findUser?.email,
         address_details: findUser?.address_details,
     }
+
+    user.token = authToken
     return res.json({
-        data: {user,token: authToken},
+        data: user,
         message: "Logged in successfully",
         status: 200
     })
