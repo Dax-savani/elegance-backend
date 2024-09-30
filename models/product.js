@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const colorAttributeSchema = new Schema({
-    color: {
-        type: String,
-        required: true
-    },
-    img: {
-        type: String,
-        required: true
-    }
-}, { _id: false });
+// const colorAttributeSchema = new Schema({
+//     color: {
+//         type: String,
+//         required: true
+//     },
+//     img: {
+//         type: String,
+//         required: true
+//     }
+// }, { _id: false });
 
 const shortDescriptionSchema = new Schema({
     text: {
@@ -75,7 +75,7 @@ const productSchema = new Schema({
         required: true
     },
     colorAttribute: {
-        type: [colorAttributeSchema],
+        type: [String],
         required: false
     },
     shortDes: {
@@ -85,11 +85,11 @@ const productSchema = new Schema({
     description: {
         textDesc: {
             type: [descriptionTextSchema],
-            required: true
+            required: false
         },
         listDesc: {
             type: [descriptionListSchema],
-            required: true
+            required: false
         }
     }
 }, { timestamps: true });

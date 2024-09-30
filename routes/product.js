@@ -7,8 +7,11 @@ const upload = multer({storage: storage});
 
 router.get('/', handleGetProduct);
 router.get('/:productId', handleGetSingleProduct);
-router.post('/',auth, upload.array("product_images",5), handleCreateProduct);
-router.put('/:productId',auth, upload.array("product_images",5), handleEditProduct);
+router.post('/',auth, upload.fields([
+    {name: 'thumbnail', maxCount: 1},
+    {name: 'colorAttribute', maxCount: 5}
+]), handleCreateProduct);
+router.put('/:productId',auth, upload.single("thumbnail"), upload.array("colorAttribute",5), handleEditProduct);
 router.delete('/:productId',auth, handleDeleteProduct);
 
 

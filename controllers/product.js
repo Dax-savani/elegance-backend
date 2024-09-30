@@ -21,46 +21,37 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
     try {
         const {
             title,
-            thumbnail,
             pCate,
             cate,
             price,
             salePrice,
             productType,
-            colorAttribute,
             shortDes,
             description
         } = req.body;
 
-        const files = req.files;
+        const thumbnail = req.files.thumbnail;
+        const colorAttribute = req.files.colorAttribute;
+        const colorAttributeBuffers = colorAttribute.map(file => file.buffer);
+        const thumbnailBuffers = thumbnail.map(file => file.buffer);
 
+        const thumbnailUrl = await uploadFiles(thumbnailBuffers);
+        const colorAttributeUrls = await uploadFiles(colorAttributeBuffers);
 
-        const fileBuffers = files.map(file => file.buffer);
-
-
-        const imageUrls = await uploadFiles(fileBuffers);
-
-
-        const parsedColorAttribute = JSON.parse(colorAttribute);
         const parsedShortDes = JSON.parse(shortDes);
         const parsedDescription = JSON.parse(description);
 
-
-        for (let i = 0; i < parsedColorAttribute.length; i++) {
-            parsedColorAttribute[i].img = imageUrls[i] || parsedColorAttribute[i].img;
-        }
-
         const createdProduct = await Product.create({
             title,
-            thumbnail,
             pCate,
+            thumbnail: thumbnailUrl[0],
             cate: JSON.parse(cate),
             price: Number(price),
             salePrice: Number(salePrice),
             productType,
-            colorAttribute: parsedColorAttribute,
             shortDes: parsedShortDes,
-            description: parsedDescription
+            description: parsedDescription,
+            colorAttribute: colorAttributeUrls
         });
 
         return res.status(201).json({
