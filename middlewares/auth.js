@@ -3,7 +3,7 @@ const User = require('../models/user')
 
 async function auth(req, res, next) {
 
-    const authToken = req.headers?.authorization.split(' ')[1];
+    const authToken = req.headers?.authorization?.split(' ')[1];
     if (!authToken) return res.status(401).json({message: "UnAuthorised: Auth token not found!", status: 401});
 
     const user = await verifyToken(authToken);
