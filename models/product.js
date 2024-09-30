@@ -74,7 +74,7 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-    colorAttribute: {
+    gallery: {
         type: [String],
         required: false
     },

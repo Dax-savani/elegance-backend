@@ -31,13 +31,12 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
         } = req.body;
 
         const thumbnail = req.files.thumbnail;
-        const colorAttribute = req.files.colorAttribute;
-        const colorAttributeBuffers = colorAttribute.map(file => file.buffer);
+        const gallery = req.files.gallery;
+        const galleryBuffers = gallery.map(file => file.buffer);
         const thumbnailBuffers = thumbnail.map(file => file.buffer);
 
         const thumbnailUrl = await uploadFiles(thumbnailBuffers);
-        const colorAttributeUrls = await uploadFiles(colorAttributeBuffers);
-
+        const galleryUrls = await uploadFiles(galleryBuffers);
         const parsedShortDes = JSON.parse(shortDes);
         const parsedDescription = JSON.parse(description);
 
@@ -51,7 +50,7 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
             productType,
             shortDes: parsedShortDes,
             description: parsedDescription,
-            colorAttribute: colorAttributeUrls
+            gallery: galleryUrls
         });
 
         return res.status(201).json({
@@ -71,13 +70,11 @@ const handleEditProduct = asyncHandler(async (req, res) => {
     const { productId } = req.params;
     const {
         title,
-        thumbnail,
         pCate,
         cate,
         price,
         salePrice,
         productType,
-        colorAttribute,
         shortDes,
         description
     } = req.body;
