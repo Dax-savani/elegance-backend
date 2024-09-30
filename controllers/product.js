@@ -79,45 +79,34 @@ const handleEditProduct = asyncHandler(async (req, res) => {
         description
     } = req.body;
 
-    const files = req.files;
-    let imageUrls = [];
-
-
-    if (files && files.length > 0) {
-        const fileBuffers = files.map(file => file.buffer);
-        imageUrls = await uploadFiles(fileBuffers);
+    const existingProduct = await Product.findById(productId);
+    if (!existingProduct) {
+        return res.status(404).json({ status: 404, message: "Product not found" });
     }
 
+    const thumbnail = req.files.thumbnail;
+    const gallery = req.files.gallery;
+    const galleryBuffers = gallery.map(file => file.buffer);
+    const thumbnailBuffers = thumbnail.map(file => file.buffer);
+
+    const thumbnailUrl = await uploadFiles(thumbnailBuffers);
+    const galleryUrls = await uploadFiles(galleryBuffers);
     try {
 
-        const existingProduct = await Product.findById(productId);
-        if (!existingProduct) {
-            return res.status(404).json({ status: 404, message: "Product not found" });
-        }
-
-
-        const parsedColorAttribute = JSON.parse(colorAttribute);
         const parsedShortDes = JSON.parse(shortDes);
         const parsedDescription = JSON.parse(description);
-
-
-        for (let i = 0; i < parsedColorAttribute.length; i++) {
-
-            parsedColorAttribute[i].img = imageUrls[i] || existingProduct.colorAttribute[i].img;
-        }
-
 
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
             {
                 title,
-                thumbnail,
+                thumbnail:thumbnailUrl[0],
                 pCate,
                 cate: JSON.parse(cate),
                 price: Number(price),
                 salePrice: Number(salePrice),
                 productType,
-                colorAttribute: parsedColorAttribute,
+                gallery: galleryUrls,
                 shortDes: parsedShortDes,
                 description: parsedDescription
             },
