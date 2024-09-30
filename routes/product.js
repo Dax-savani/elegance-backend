@@ -11,10 +11,10 @@ router.post('/',auth, upload.fields([
     {name: 'thumbnail', maxCount: 1},
     {name: 'gallery', maxCount: 5}
 ]), handleCreateProduct);
-router.put('/:productId',auth,upload.fields([
-    {name: 'thumbnail', maxCount: 1},
-    {name: 'gallery', maxCount: 5}
-]), handleEditProduct);
+// router.put('/:productId',auth,upload.fields([
+//     {name: 'thumbnail', maxCount: 1},
+//     {name: 'gallery', maxCount: 5}
+// ]), handleEditProduct);
 router.delete('/:productId',auth, handleDeleteProduct);
 
 
