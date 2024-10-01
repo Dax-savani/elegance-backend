@@ -12,10 +12,10 @@ router.get('/category/:categoryId/subcategory', handleGetSubcategories);
 
 router.get('/category/:categoryId/subcategory/:subcategoryId', handleGetSubcategoryById);
 
-router.post('/', auth, handleCreateSubcategory);
+router.post('/category/:categoryId/subcategory', auth, handleCreateSubcategory);
 
-router.put('/:subcategoryId', auth, handleUpdateSubcategory);
+router.put('/category/:categoryId/subcategory/:subcategoryId', auth, handleUpdateSubcategory);
 
-router.delete('/:subcategoryId', auth, handleDeleteSubcategory);
+router.delete('/category/:categoryId/subcategory/:subcategoryId', auth, handleDeleteSubcategory);
 
 module.exports = router;

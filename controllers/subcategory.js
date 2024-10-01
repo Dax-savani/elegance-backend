@@ -1,13 +1,14 @@
 const Subcategory = require('../models/subcategory');
 const Category = require('../models/category');
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 
 
 const handleGetSubcategories = asyncHandler(async (req, res) => {
-    const { categoryId } = req.params;
-
+    let {categoryId} = req.params;
     try {
-        const subcategories = await Subcategory.find({ category: categoryId });
+        const subcategories = await Subcategory.find({category: categoryId}).populate("category");
+        console.log("subcategories : ", categoryId)
         if (!subcategories || subcategories.length === 0) {
             return res.status(404).json({
                 status: 404,
@@ -30,24 +31,23 @@ const handleGetSubcategories = asyncHandler(async (req, res) => {
 
 
 const handleGetSubcategoryById = asyncHandler(async (req, res) => {
-    const { categoryId, subcategoryId } = req.params;
+    const {categoryId, subcategoryId} = req.params;
 
     try {
-        const subcategory = await Subcategory.findOne({
-            _id: subcategoryId,
-            category: categoryId
-        });
+        const category = await Category.findOne({categoryId});
 
-        if (!subcategory) {
+        if (!category) {
             return res.status(404).json({
                 status: 404,
-                message: 'Subcategory not found for this category'
+                message: 'Category not found for this category'
             });
         }
 
+        const subCategory = await Subcategory.find({categoryId, subcategoryId});
+
         return res.status(200).json({
             status: 200,
-            data: subcategory
+            data: subCategory
         });
     } catch (err) {
         return res.status(500).json({
@@ -59,11 +59,10 @@ const handleGetSubcategoryById = asyncHandler(async (req, res) => {
 });
 
 
-
 const handleCreateSubcategory = asyncHandler(async (req, res) => {
-    const { subcategoryName, category } = req.body;
-
-    if (!subcategoryName || !category) {
+    const {categoryId} = req.params;
+    const {subcategoryName} = req.body;
+    if (!subcategoryName || !categoryId) {
         return res.status(400).json({
             status: 400,
             message: 'Subcategory name and category are required'
@@ -72,17 +71,9 @@ const handleCreateSubcategory = asyncHandler(async (req, res) => {
 
     try {
 
-        const findedCategory = await Category.findById(category);
-        if (!findedCategory) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Category not found'
-            });
-        }
-
         const newSubcategory = await Subcategory.create({
             subcategoryName,
-            category
+            category: categoryId
         });
 
         return res.status(201).json({
@@ -101,10 +92,10 @@ const handleCreateSubcategory = asyncHandler(async (req, res) => {
 
 
 const handleUpdateSubcategory = asyncHandler(async (req, res) => {
-    const { subcategoryId } = req.params;
-    const { subcategoryName, category } = req.body;
+    const {categoryId,subcategoryId} = req.params;
+    const {subcategoryName} = req.body;
 
-    if (!subcategoryName || !category) {
+    if (!subcategoryName || !categoryId) {
         return res.status(400).json({
             status: 400,
             message: 'Subcategory name and category are required'
@@ -112,19 +103,13 @@ const handleUpdateSubcategory = asyncHandler(async (req, res) => {
     }
 
     try {
-
-        const findedCategory = await Category.findById(category);
-        if (!findedCategory) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Category not found'
-            });
-        }
-
         const updatedSubcategory = await Subcategory.findByIdAndUpdate(
             subcategoryId,
-            { subcategoryName, category },
-            { new: true, runValidators: true }
+            {
+                subcategoryName,
+                category: categoryId
+            },
+            {new: true, runValidators: true}
         );
 
         if (!updatedSubcategory) {
@@ -150,10 +135,10 @@ const handleUpdateSubcategory = asyncHandler(async (req, res) => {
 
 
 const handleDeleteSubcategory = asyncHandler(async (req, res) => {
-    const { subcategoryId } = req.params;
+    const {subcategoryId, categoryId} = req.params;
 
     try {
-        const deletedSubcategory = await Subcategory.findByIdAndDelete(subcategoryId);
+        const deletedSubcategory = await Subcategory.findOneAndDelete({_id: subcategoryId, category: categoryId});
         if (!deletedSubcategory) {
             return res.status(404).json({
                 status: 404,
