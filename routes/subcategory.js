@@ -1,16 +1,21 @@
 const router = require('express').Router();
 const {auth} = require("../middlewares/auth");
-const multer = require('multer');
-const storage = multer.memoryStorage();
-const upload = multer({storage: storage});
-const {handleGetOffer , handleAddOffer , handleDeleteOffer} = require('../controllers/offer');
+const {
+    handleGetSubcategoryById,
+    handleGetSubcategories,
+    handleUpdateSubcategory,
+    handleDeleteSubcategory,
+    handleCreateSubcategory
+} = require('../controllers/subcategory');
 
-router.get('/',handleGetOffer);
+router.get('/category/:categoryId/subcategory', handleGetSubcategories);
 
-// router.get('/:orderId',handleGetSingleOrder);
-//
-router.post('/',handleAddOffer);
-//
-router.delete('/:offerId',handleDeleteOffer);
+router.get('/category/:categoryId/subcategory/:subcategoryId', handleGetSubcategoryById);
+
+router.post('/', auth, handleCreateSubcategory);
+
+router.put('/:subcategoryId', auth, handleUpdateSubcategory);
+
+router.delete('/:subcategoryId', auth, handleDeleteSubcategory);
 
 module.exports = router;

@@ -7,25 +7,6 @@ const handleGetWishlist = asyncHandler(async (req, res) => {
     return res.status(200).json(wishlistProducts);
 })
 
-// const handleAddWishlist = asyncHandler(async (req, res) => {
-//     const {product_id} = req.body;
-//     const findProduct = Product.findById(product_id);
-//     if(!findProduct) return  res.status(400).json({status:400,message: 'Product not found'});
-//     try {
-//         const newWishlist = await Wishlist.create({
-//             user_id: req.user._id,
-//             product_id,
-//         })
-//         return res.status(201).json({status: 201, message: 'Product added to Wishlist', data: newWishlist})
-//     } catch (err) {
-//         return res.status(500).json({
-//             status: 500,
-//             message: 'Fail to add wishlist product',
-//             error: err.message
-//         })
-//     }
-// });
-
 const handleAddWishlist = asyncHandler(async (req, res) => {
     const { product_id } = req.body;
 
