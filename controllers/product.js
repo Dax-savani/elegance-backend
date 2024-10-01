@@ -39,7 +39,6 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
         const galleryUrls = await uploadFiles(galleryBuffers);
         const parsedShortDes = JSON.parse(shortDes);
         const parsedDescription = JSON.parse(description);
-
         const createdProduct = await Product.create({
             title,
             pCate,

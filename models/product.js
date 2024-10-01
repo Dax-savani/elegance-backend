@@ -18,7 +18,7 @@ const shortDescriptionSchema = new Schema({
         required: true
     },
     listItem: {
-        type: String,
+        type: [String],
         required: true
     }
 }, { _id: false });
