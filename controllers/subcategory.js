@@ -1,19 +1,23 @@
 const Subcategory = require('../models/subcategory');
 const Category = require('../models/category');
 const asyncHandler = require('express-async-handler');
-const mongoose = require('mongoose');
 
+const handleErrorResponse = (res, message, statusCode = 500, error = null) => {
+    return res.status(statusCode).json({
+        status: statusCode,
+        message,
+        error: error ? error.message : undefined
+    });
+};
 
-const handleGetSubcategories = asyncHandler(async (req, res) => {
-    let {categoryId} = req.params;
+const GetAllSubcategories = asyncHandler(async (req, res) => {
+    const { categoryId } = req.params;
+
     try {
-        const subcategories = await Subcategory.find({category: categoryId}).populate("category");
-        console.log("subcategories : ", categoryId)
+        const subcategories = await Subcategory.find({ category: categoryId }).populate("category");
+
         if (!subcategories || subcategories.length === 0) {
-            return res.status(404).json({
-                status: 404,
-                message: 'No subcategories found for this category'
-            });
+            return handleErrorResponse(res, 'No subcategories found for this category', 404);
         }
 
         return res.status(200).json({
@@ -21,56 +25,38 @@ const handleGetSubcategories = asyncHandler(async (req, res) => {
             data: subcategories
         });
     } catch (err) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Failed to fetch subcategories',
-            error: err.message
-        });
+        return handleErrorResponse(res, 'Failed to fetch subcategories', 500, err);
     }
 });
 
-
-const handleGetSubcategoryById = asyncHandler(async (req, res) => {
-    const {categoryId, subcategoryId} = req.params;
+const GetSingleSubcategory = asyncHandler(async (req, res) => {
+    const { categoryId, subcategoryId } = req.params;
 
     try {
-        const category = await Category.findOne({categoryId});
+        const subcategory = await Subcategory.findOne({ _id: subcategoryId, category: categoryId }).populate("category");
 
-        if (!category) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Category not found for this category'
-            });
+        if (!subcategory) {
+            return handleErrorResponse(res, 'Subcategory not found for this category', 404);
         }
-
-        const subCategory = await Subcategory.find({categoryId, subcategoryId});
 
         return res.status(200).json({
             status: 200,
-            data: subCategory
+            data: subcategory
         });
     } catch (err) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Failed to fetch subcategory',
-            error: err.message
-        });
+        return handleErrorResponse(res, 'Failed to fetch subcategory', 500, err);
     }
 });
 
+const AddSubcategory = asyncHandler(async (req, res) => {
+    const { categoryId } = req.params;
+    const { subcategoryName } = req.body;
 
-const handleCreateSubcategory = asyncHandler(async (req, res) => {
-    const {categoryId} = req.params;
-    const {subcategoryName} = req.body;
     if (!subcategoryName || !categoryId) {
-        return res.status(400).json({
-            status: 400,
-            message: 'Subcategory name and category are required'
-        });
+        return handleErrorResponse(res, 'Subcategory name and category ID are required', 400);
     }
 
     try {
-
         const newSubcategory = await Subcategory.create({
             subcategoryName,
             category: categoryId
@@ -82,41 +68,27 @@ const handleCreateSubcategory = asyncHandler(async (req, res) => {
             data: newSubcategory
         });
     } catch (err) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Failed to create subcategory',
-            error: err.message
-        });
+        return handleErrorResponse(res, 'Failed to create subcategory', 500, err);
     }
 });
 
-
-const handleUpdateSubcategory = asyncHandler(async (req, res) => {
-    const {categoryId,subcategoryId} = req.params;
-    const {subcategoryName} = req.body;
+const UpdateSubcategory = asyncHandler(async (req, res) => {
+    const { categoryId, subcategoryId } = req.params;
+    const { subcategoryName } = req.body;
 
     if (!subcategoryName || !categoryId) {
-        return res.status(400).json({
-            status: 400,
-            message: 'Subcategory name and category are required'
-        });
+        return handleErrorResponse(res, 'Subcategory name and category ID are required', 400);
     }
 
     try {
         const updatedSubcategory = await Subcategory.findByIdAndUpdate(
             subcategoryId,
-            {
-                subcategoryName,
-                category: categoryId
-            },
-            {new: true, runValidators: true}
+            { subcategoryName, category: categoryId },
+            { new: true, runValidators: true }
         );
 
         if (!updatedSubcategory) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Subcategory not found'
-            });
+            return handleErrorResponse(res, 'Subcategory not found', 404);
         }
 
         return res.status(200).json({
@@ -125,25 +97,18 @@ const handleUpdateSubcategory = asyncHandler(async (req, res) => {
             data: updatedSubcategory
         });
     } catch (err) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Failed to update subcategory',
-            error: err.message
-        });
+        return handleErrorResponse(res, 'Failed to update subcategory', 500, err);
     }
 });
 
-
-const handleDeleteSubcategory = asyncHandler(async (req, res) => {
-    const {subcategoryId, categoryId} = req.params;
+const DeleteSubcategory = asyncHandler(async (req, res) => {
+    const { subcategoryId, categoryId } = req.params;
 
     try {
-        const deletedSubcategory = await Subcategory.findOneAndDelete({_id: subcategoryId, category: categoryId});
+        const deletedSubcategory = await Subcategory.findOneAndDelete({ _id: subcategoryId, category: categoryId });
+
         if (!deletedSubcategory) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Subcategory not found'
-            });
+            return handleErrorResponse(res, 'Subcategory not found', 404);
         }
 
         return res.status(200).json({
@@ -152,18 +117,14 @@ const handleDeleteSubcategory = asyncHandler(async (req, res) => {
             data: deletedSubcategory
         });
     } catch (err) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Failed to delete subcategory',
-            error: err.message
-        });
+        return handleErrorResponse(res, 'Failed to delete subcategory', 500, err);
     }
 });
 
 module.exports = {
-    handleGetSubcategories,
-    handleGetSubcategoryById,
-    handleCreateSubcategory,
-    handleUpdateSubcategory,
-    handleDeleteSubcategory
+    GetAllSubcategories,
+    GetSingleSubcategory,
+    AddSubcategory,
+    UpdateSubcategory,
+    DeleteSubcategory
 };

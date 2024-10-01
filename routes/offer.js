@@ -3,14 +3,12 @@ const {auth} = require("../middlewares/auth");
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({storage: storage});
-const {handleGetOffer , handleAddOffer , handleDeleteOffer} = require('../controllers/offer');
+const { GetAllOffers , AddOffer , DeleteOffer} = require('../controllers/offer');
 
-router.get('/',handleGetOffer);
+router.get('/',GetAllOffers);
 
-// router.get('/:orderId',handleGetSingleOrder);
-//
-router.post('/',auth, upload.array("offer_images"),handleAddOffer);
-//
-router.delete('/:offerId',handleDeleteOffer);
+router.post('/',auth, upload.array("offer_images"),AddOffer);
+
+router.delete('/:offerId',DeleteOffer);
 
 module.exports = router;

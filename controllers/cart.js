@@ -2,96 +2,155 @@ const Cart = require('../models/cart');
 const Product = require('../models/product');
 const asyncHandler = require("express-async-handler");
 
-const handleGetCart = asyncHandler(async (req,res) => {
-    try {
-        const userId = req.user._id;
+const handleErrorResponse = (res, message, statusCode = 500, error = null) => {
+    return res.status(statusCode).json({
+        status: statusCode,
+        message,
+        error: error ? error.message : undefined
+    });
+};
 
-        const cartProducts = await Cart.find({ user_id: userId })
+const GetAllCartItems = asyncHandler(async (req, res) => {
+    try {
+        const {_id} = req.user;
+
+        const cartProducts = await Cart.find({ user_id: _id })
             .populate('product_id')
             .exec();
 
-        return res.status(200).json(cartProducts);
+        return res.status(200).json({
+            status: 200,
+            data: cartProducts
+        });
     } catch (error) {
         console.error("Error fetching cart products: ", error);
-        return res.status(500).json({
-            status: 'error',
-            message: 'Failed to fetch cart products'
-        });
+        return handleErrorResponse(res, 'Failed to fetch cart products', 500, error);
     }
-})
+});
 
-const handleGetSingleCart = asyncHandler(async (req,res) => {
-    const {cartId} = req.params;
-    const cartProduct = await Cart.findById(cartId).populate('product_id');
-    if(!cartProduct) {
-        res.status(404);
-        throw new Error('Cart item not found');
-    }
-    return res.json(cartProduct);
-})
+const GetSingleCartItem = asyncHandler(async (req, res) => {
+    const { cartId } = req.params;
 
-
-const handleAddCart = asyncHandler(async (req, res) => {
-    const {product_id, qty} = req.body;
-    const findedProduct = await Product.findById(product_id);
-    if(!findedProduct) return res.status(404).json({status: 404,message: "Product not found"});
-    const findedProductinCart = await Cart.findOne({ user_id: req.user._id, product_id });
-    if (findedProductinCart) {
-        return res.status(400).json({
-            status: 400,
-            message: 'Product is already in Cart'
-        });
-    }
     try {
-        const newCart = await Cart.create({
-            user_id: req.user._id,
+        const cartProduct = await Cart.findById(cartId).populate('product_id').exec();
+        if (!cartProduct) {
+            return handleErrorResponse(res, 'Cart item not found', 404);
+        }
+
+        return res.status(200).json({
+            status: 200,
+            data: cartProduct
+        });
+    } catch (error) {
+        return handleErrorResponse(res, 'Failed to fetch cart item', 500, error);
+    }
+});
+
+const AddCartItem = asyncHandler(async (req, res) => {
+    const { product_id, qty } = req.body;
+    const {_id} = req.user
+
+    if (!product_id || !qty) {
+        return handleErrorResponse(res, 'Product ID and quantity are required', 400);
+    }
+
+    try {
+        const product = await Product.findById(product_id).exec();
+        if (!product) {
+            return handleErrorResponse(res, 'Product not found', 404);
+        }
+
+        const existingCartItem = await Cart.findOne({ user_id: _id, product_id }).exec();
+        if (existingCartItem) {
+            return handleErrorResponse(res, 'Product is already in the cart', 400);
+        }
+
+        const newCartItem = await Cart.create({
+            user_id: _id,
             product_id,
             qty
-        })
-        return res.status(201).json({status: 201, message: 'Product added to Cart', data: newCart})
-    } catch (err) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Fail to add cart product',
-            error: err.message
-        })
+        });
+
+        return res.status(201).json({
+            status: 201,
+            message: 'Product added to cart',
+            data: newCartItem
+        });
+    } catch (error) {
+        return handleErrorResponse(res, 'Failed to add product to cart', 500, error);
     }
 });
 
-const handleEditCart = asyncHandler(async (req, res) => {
-    const {cartId} = req.params;
-    const {qty} = req.body;
-    if(qty == 0) {
-        const removeProduct = await Cart.findByIdAndDelete(cartId);
-        return res.status(200).json({status:200,message: "Product removed",data:removeProduct});
+const EditCart = asyncHandler(async (req, res) => {
+    const { cartId } = req.params;
+    const { qty } = req.body;
+
+    if (!qty) {
+        return handleErrorResponse(res, 'Quantity is required', 400);
     }
-    if (!qty) return res.status(400).json({status: 400, message: "Quantity is required"});
+
+    if (qty === 0) {
+        try {
+            const removedCartItem = await Cart.findByIdAndDelete(cartId).exec();
+            if (!removedCartItem) {
+                return handleErrorResponse(res, 'Cart item not found', 404);
+            }
+
+            return res.status(200).json({
+                status: 200,
+                message: 'Product removed from cart',
+                data: removedCartItem
+            });
+        } catch (error) {
+            return handleErrorResponse(res, 'Failed to remove product from cart', 500, error);
+        }
+    }
 
     try {
-        const updatedCart = await Cart.findByIdAndUpdate(cartId, {qty}, {new: true, runValidators: true});
+        const updatedCartItem = await Cart.findByIdAndUpdate(
+            cartId,
+            { qty },
+            { new: true, runValidators: true }
+        ).exec();
 
-        if (!updatedCart) return res.status(404).json({status: 404, message: "Cart Product not found"});
+        if (!updatedCartItem) {
+            return handleErrorResponse(res, 'Cart item not found', 404);
+        }
 
-        return res.status(200).json({status: 200, message: "Product updated successfully", data: updatedCart})
-
-    } catch (err) {
-        console.error("Error updating cart product",err);
-        return res.status(500).json({status: 500,message: "Error updating cart product",error: err})
+        return res.status(200).json({
+            status: 200,
+            message: 'Cart item updated successfully',
+            data: updatedCartItem
+        });
+    } catch (error) {
+        return handleErrorResponse(res, 'Failed to update cart item', 500, error);
     }
 });
 
-const handleDeleteCart = asyncHandler(async (req,res) => {
-    try{
-        const {cartId} = req.params;
-        const cartProduct = await Cart.findById(cartId);
-        if(!cartProduct) return res.status(404).json({status: 404,message: "Product not found"});
+const DeleteCartItem = asyncHandler(async (req, res) => {
+    const { cartId } = req.params;
 
-        const deletedProduct = await Cart.findByIdAndDelete(cartId);
-        return res.status(200).json({status: 200,message: "Product deleted successfully",data: deletedProduct});
-    } catch(err){
-        res.status(500).json({status:500,message: "Failed to delete Product",error: err.message});
-        throw Error("Failed to delete Product");
+    try {
+        const cartItem = await Cart.findById(cartId).exec();
+        if (!cartItem) {
+            return handleErrorResponse(res, 'Cart item not found', 404);
+        }
+
+        const deletedCartItem = await Cart.findByIdAndDelete(cartId).exec();
+        return res.status(200).json({
+            status: 200,
+            message: 'Product deleted successfully from cart',
+            data: deletedCartItem
+        });
+    } catch (error) {
+        return handleErrorResponse(res, 'Failed to delete product from cart', 500, error);
     }
-})
+});
 
-module.exports = {handleAddCart , handleEditCart , handleGetCart ,handleGetSingleCart ,handleDeleteCart}
+module.exports = {
+    AddCartItem,
+    EditCart,
+    GetAllCartItems,
+    GetSingleCartItem,
+    DeleteCartItem
+};

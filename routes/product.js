@@ -1,21 +1,21 @@
 const router = require('express').Router();
-const {handleCreateProduct , handleGetProduct , handleDeleteProduct , handleGetSingleProduct , handleEditProduct} = require('../controllers/product');
+const {AddProduct, GetAllProducts, DeleteProduct, GetSingleProduct, EditProduct} = require('../controllers/product');
 const multer = require('multer');
 const {auth} = require("../middlewares/auth");
 const storage = multer.memoryStorage();
 const upload = multer({storage: storage});
 
-router.get('/', handleGetProduct);
-router.get('/:productId', handleGetSingleProduct);
+router.get('/', GetAllProducts);
+router.get('/:productId', GetSingleProduct);
 router.post('/',auth, upload.fields([
     {name: 'thumbnail', maxCount: 1},
     {name: 'gallery', maxCount: 5}
-]), handleCreateProduct);
+]), AddProduct);
 router.put('/:productId',auth,upload.fields([
     {name: 'thumbnail', maxCount: 1},
     {name: 'gallery', maxCount: 5}
-]), handleEditProduct);
-router.delete('/:productId',auth, handleDeleteProduct);
+]), EditProduct);
+router.delete('/:productId',auth, DeleteProduct);
 
 
 

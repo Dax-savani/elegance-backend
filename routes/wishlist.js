@@ -1,10 +1,14 @@
 const router = require('express').Router();
-const {handleAddWishlist, handleGetWishlist, handleDeleteWishlist} = require('../controllers/wishlist')
+const {
+    AddWishlistItem,
+    GetAllWishlistItems,
+    DeleteWishlistItem
+} = require('../controllers/wishlist')
 
-router.get('/', handleGetWishlist);
+router.get('/', GetAllWishlistItems);
 
-router.post('/', handleAddWishlist);
+router.post('/', AddWishlistItem);
 
-router.delete('/:wishlistId', handleDeleteWishlist);
+router.delete('/:wishlistId', DeleteWishlistItem);
 
 module.exports = router;
