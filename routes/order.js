@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const {handleAddOrder,handleEditOrder,handleGetOrder,handleGetSingleOrder} = require('../controllers/order')
+const {AddOrder, GetAllOrders, GetSingleOrder, EditOrder } = require('../controllers/order')
 
-router.get('/',handleGetOrder);
+router.get('/',GetAllOrders);
 
-router.get('/:orderId',handleGetSingleOrder);
+router.get('/:orderId',GetSingleOrder);
 
-router.post('/',handleAddOrder);
+router.post('/',AddOrder);
 
-router.patch('/:orderId',handleEditOrder);
+router.patch('/:orderId',EditOrder);
 
 module.exports = router;

@@ -1,15 +1,15 @@
 const router = require('express').Router();
-const {handleAddCart,handleEditCart,handleGetCart,handleGetSingleCart , handleDeleteCart} = require('../controllers/cart')
+const {AddCartItem , EditCart , GetAllCartItems ,GetSingleCartItem ,DeleteCartItem} = require('../controllers/cart')
 
-router.get('/',handleGetCart);
+router.get('/',GetAllCartItems);
 
-router.get('/:cartId',handleGetSingleCart);
+router.get('/:cartId',GetSingleCartItem);
 
-router.post('/',handleAddCart);
+router.post('/',AddCartItem);
 
-router.put('/:cartId',handleEditCart);
+router.put('/:cartId',EditCart);
 
-router.delete('/:cartId',handleDeleteCart);
+router.delete('/:cartId',DeleteCartItem);
 
 
 module.exports = router;

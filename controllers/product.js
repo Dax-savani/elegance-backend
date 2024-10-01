@@ -2,12 +2,12 @@ const Product = require('../models/product');
 const asyncHandler = require("express-async-handler");
 const {uploadFiles} = require('../helpers/productImage');
 
-const handleGetProduct = asyncHandler(async (req, res) => {
+const GetAllProducts = asyncHandler(async (req, res) => {
     const products = await Product.find({});
     return res.json(products);
 });
 
-const handleGetSingleProduct = asyncHandler(async (req, res) => {
+const GetSingleProduct = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.productId);
     if (product) {
         return res.json(product)
@@ -17,7 +17,7 @@ const handleGetSingleProduct = asyncHandler(async (req, res) => {
     }
 })
 
-const handleCreateProduct = asyncHandler(async (req, res) => {
+const AddProduct = asyncHandler(async (req, res) => {
     try {
         const {
             title,
@@ -65,7 +65,7 @@ const handleCreateProduct = asyncHandler(async (req, res) => {
     }
 });
 
-const handleEditProduct = asyncHandler(async (req, res) => {
+const EditProduct = asyncHandler(async (req, res) => {
     const { productId } = req.params;
     const {
         title,
@@ -125,7 +125,7 @@ const handleEditProduct = asyncHandler(async (req, res) => {
 });
 
 
-const handleDeleteProduct = asyncHandler(async (req, res) => {
+const DeleteProduct = asyncHandler(async (req, res) => {
     const deletedProduct = await Product.findByIdAndDelete(req.params.productId);
     if (deletedProduct) {
         return res.json({message: "Product removed", deletedProduct})
@@ -136,4 +136,4 @@ const handleDeleteProduct = asyncHandler(async (req, res) => {
 })
 
 
-module.exports = {handleCreateProduct, handleGetProduct, handleDeleteProduct, handleGetSingleProduct, handleEditProduct}
+module.exports = {AddProduct, GetAllProducts, DeleteProduct, GetSingleProduct, EditProduct}

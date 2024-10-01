@@ -2,44 +2,67 @@ const Order = require('../models/order');
 const Product = require('../models/product');
 const asyncHandler = require("express-async-handler");
 
-const handleGetOrder = asyncHandler(async (req, res) => {
-    const orderProducts = await Order.find({});
-    return res.json(orderProducts);
-})
+const handleErrorResponse = (res, message, statusCode = 500, error = null) => {
+    return res.status(statusCode).json({
+        status: statusCode,
+        message,
+        error: error ? error.message : undefined
+    });
+};
 
-const handleGetSingleOrder = asyncHandler(async (req, res) => {
-    const {orderId} = req.params;
-    const orderProduct = await Order.findById(orderId).populate('product_id');
-    if (!orderProduct) {
-        res.status(404)
-        throw new Error('Order not found');
+const GetAllOrders = asyncHandler(async (req, res) => {
+    try {
+        const orders = await Order.find().populate('product_id').exec();
+        return res.status(200).json({
+            status: 200,
+            data: orders
+        });
+    } catch (error) {
+        console.error("Error fetching orders: ", error);
+        return handleErrorResponse(res, 'Failed to fetch orders', 500, error);
     }
-    return res.json(orderProduct);
-})
+});
 
+const GetSingleOrder = asyncHandler(async (req, res) => {
+    const { orderId } = req.params;
 
-const handleAddOrder = asyncHandler(async (req, res) => {
+    try {
+        const order = await Order.findById(orderId).populate('product_id').exec();
+        if (!order) {
+            return handleErrorResponse(res, 'Order not found', 404);
+        }
+
+        return res.status(200).json({
+            status: 200,
+            data: order
+        });
+    } catch (error) {
+        return handleErrorResponse(res, 'Failed to fetch the order', 500, error);
+    }
+});
+
+const AddOrder = asyncHandler(async (req, res) => {
     const { product_id, qty, status } = req.body;
 
     try {
-        const product = await Product.findById(product_id);
+        const product = await Product.findById(product_id).exec();
         if (!product) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Product not found'
-            });
+            return handleErrorResponse(res, 'Product not found', 404);
         }
+
         if (!qty || qty < 1) {
-            return res.status(400).json({
-                status: 400,
-                message: 'Quantity must be at least 1'
-            });
+            return handleErrorResponse(res, 'Quantity must be at least 1', 400);
+        }
+
+        const validStatuses = ['placed', 'processed', 'shipped', 'delivered', 'cancelled'];
+        if (!validStatuses.includes(status)) {
+            return handleErrorResponse(res, 'Invalid order status', 400);
         }
 
         const newOrder = await Order.create({
             user_id: req.user._id,
             product_id,
-            qty: validQty,
+            qty,
             status
         });
 
@@ -48,35 +71,40 @@ const handleAddOrder = asyncHandler(async (req, res) => {
             message: 'Order placed successfully',
             data: newOrder
         });
-    } catch (err) {
-        return res.status(500).json({
-            status: 500,
-            message: 'Failed to place order',
-            error: err.message
-        });
+    } catch (error) {
+        return handleErrorResponse(res, 'Failed to place order', 500, error);
     }
 });
 
+const EditOrder = asyncHandler(async (req, res) => {
+    const { orderId } = req.params;
+    const { status } = req.body;
 
-const handleEditOrder = asyncHandler(async (req, res) => {
     try {
-        const {orderId} = req.params;
-        const {status} = req.body;
         const validStatuses = ['placed', 'processed', 'shipped', 'delivered', 'cancelled'];
         if (!validStatuses.includes(status)) {
-            res.status(400);
-            throw new Error('Invalid order status');
+            return handleErrorResponse(res, 'Invalid order status', 400);
         }
 
-        const updatedOrder = await Order.findByIdAndUpdate(orderId, {status}, {new: true, runValidators: true});
+        const updatedOrder = await Order.findByIdAndUpdate(orderId, { status }, { new: true, runValidators: true }).exec();
 
-        if (!updatedOrder) return res.status(404).json({status: 404, message: "Order not found"});
+        if (!updatedOrder) {
+            return handleErrorResponse(res, 'Order not found', 404);
+        }
 
-        return res.status(200).json({status: 200, message: "Order updated successfully", data: updatedOrder})
-
-    } catch (err) {
-        return res.status(500).json({status: 500, message: "Error updating Order", error: err})
+        return res.status(200).json({
+            status: 200,
+            message: 'Order updated successfully',
+            data: updatedOrder
+        });
+    } catch (error) {
+        return handleErrorResponse(res, 'Failed to update order', 500, error);
     }
-})
+});
 
-module.exports = {handleAddOrder, handleGetOrder, handleGetSingleOrder, handleEditOrder }
+module.exports = {
+    AddOrder,
+    GetAllOrders,
+    GetSingleOrder,
+    EditOrder
+};

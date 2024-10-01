@@ -1,21 +1,21 @@
 const router = require('express').Router();
 const {auth} = require("../middlewares/auth");
 const {
-    handleGetSubcategoryById,
-    handleGetSubcategories,
-    handleUpdateSubcategory,
-    handleDeleteSubcategory,
-    handleCreateSubcategory
+    GetSingleSubcategory,
+    GetAllSubcategories,
+    UpdateSubcategory,
+    DeleteSubcategory,
+    AddSubcategory
 } = require('../controllers/subcategory');
 
-router.get('/category/:categoryId/subcategory', handleGetSubcategories);
+router.get('/:categoryId/subcategory', GetAllSubcategories);
 
-router.get('/category/:categoryId/subcategory/:subcategoryId', handleGetSubcategoryById);
+router.get('/:categoryId/subcategory/:subcategoryId', GetSingleSubcategory);
 
-router.post('/category/:categoryId/subcategory', auth, handleCreateSubcategory);
+router.post('/:categoryId/subcategory', auth, AddSubcategory);
 
-router.put('/category/:categoryId/subcategory/:subcategoryId', auth, handleUpdateSubcategory);
+router.put('/:categoryId/subcategory/:subcategoryId', auth, UpdateSubcategory);
 
-router.delete('/category/:categoryId/subcategory/:subcategoryId', auth, handleDeleteSubcategory);
+router.delete('/:categoryId/subcategory/:subcategoryId', auth, DeleteSubcategory);
 
 module.exports = router;
