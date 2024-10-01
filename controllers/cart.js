@@ -47,10 +47,10 @@ const GetSingleCartItem = asyncHandler(async (req, res) => {
 });
 
 const AddCartItem = asyncHandler(async (req, res) => {
-    const { product_id, qty } = req.body;
+    const { product_id, cartQuantity } = req.body;
     const {_id} = req.user
 
-    if (!product_id || !qty) {
+    if (!product_id || !cartQuantity) {
         return handleErrorResponse(res, 'Product ID and quantity are required', 400);
     }
 
@@ -68,7 +68,7 @@ const AddCartItem = asyncHandler(async (req, res) => {
         const newCartItem = await Cart.create({
             user_id: _id,
             product_id,
-            qty
+            cartQuantity
         });
 
         return res.status(201).json({
@@ -83,13 +83,13 @@ const AddCartItem = asyncHandler(async (req, res) => {
 
 const EditCart = asyncHandler(async (req, res) => {
     const { cartId } = req.params;
-    const { qty } = req.body;
+    const { cartQuantity } = req.body;
 
-    if (!qty) {
+    if (!cartQuantity) {
         return handleErrorResponse(res, 'Quantity is required', 400);
     }
 
-    if (qty === 0) {
+    if (cartQuantity === 0) {
         try {
             const removedCartItem = await Cart.findByIdAndDelete(cartId).exec();
             if (!removedCartItem) {
@@ -109,7 +109,7 @@ const EditCart = asyncHandler(async (req, res) => {
     try {
         const updatedCartItem = await Cart.findByIdAndUpdate(
             cartId,
-            { qty },
+            { cartQuantity },
             { new: true, runValidators: true }
         ).exec();
 
