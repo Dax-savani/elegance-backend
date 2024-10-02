@@ -12,10 +12,10 @@ const handleErrorResponse = (res, message, statusCode = 500, error = null) => {
 };
 
 const GetAllSubcategories = asyncHandler(async (req, res) => {
-    const { categoryId } = req.params;
+    const {categoryId} = req.params;
 
     try {
-        const subcategories = await Subcategory.find({ category: categoryId }).populate("category");
+        const subcategories = await Subcategory.find({category: categoryId}).populate("category");
 
         if (!subcategories || subcategories.length === 0) {
             return handleErrorResponse(res, 'No subcategories found for this category', 404);
@@ -31,10 +31,10 @@ const GetAllSubcategories = asyncHandler(async (req, res) => {
 });
 
 const GetSingleSubcategory = asyncHandler(async (req, res) => {
-    const { categoryId, subcategoryId } = req.params;
+    const {categoryId, subcategoryId} = req.params;
 
     try {
-        const subcategory = await Subcategory.findOne({ _id: subcategoryId, category: categoryId }).populate("category");
+        const subcategory = await Subcategory.findOne({_id: subcategoryId, category: categoryId}).populate("category");
 
         if (!subcategory) {
             return handleErrorResponse(res, 'Subcategory not found for this category', 404);
@@ -50,11 +50,9 @@ const GetSingleSubcategory = asyncHandler(async (req, res) => {
 });
 
 const AddSubcategory = asyncHandler(async (req, res) => {
-    const { categoryId } = req.params;
-    const { subcategoryName } = req.body;
-    const image = req.files['subcategory-image'] ? req.files['subcategory-image'][0] : null;
-
-    const subCategoryImage = image ? await uploadSubCategoryImage(image.buffer) : null;
+    const {categoryId} = req.params;
+    const {subcategoryName} = req.body;
+    const subCategoryImage = req.file && req.file.buffer ? await uploadSubCategoryImage(req.file.buffer) : null;
 
     if (!subcategoryName || !categoryId) {
         return handleErrorResponse(res, 'Subcategory name and category ID are required', 400);
@@ -78,8 +76,8 @@ const AddSubcategory = asyncHandler(async (req, res) => {
 });
 
 const UpdateSubcategory = asyncHandler(async (req, res) => {
-    const { categoryId, subcategoryId } = req.params;
-    const { subcategoryName } = req.body;
+    const {categoryId, subcategoryId} = req.params;
+    const {subcategoryName} = req.body;
 
     if (!subcategoryName || !categoryId) {
         return handleErrorResponse(res, 'Subcategory name and category ID are required', 400);
@@ -91,11 +89,8 @@ const UpdateSubcategory = asyncHandler(async (req, res) => {
     };
 
     try {
-        const image = req.files['subcategory-image'] ? req.files['subcategory-image'][0] : null;
-        if (image) {
-            const subCategoryImage = await uploadSubCategoryImage(image.buffer);
-            if (subCategoryImage) payload.subCategoryImage = subCategoryImage;
-        }
+        const subCategoryImage = req.file && req.file.buffer ? await uploadSubCategoryImage(req.file.buffer) : null;
+        if (subCategoryImage) payload.subCategoryImage = subCategoryImage;
     } catch (imageUploadError) {
         return handleErrorResponse(res, 'Failed to upload subcategory image', 500, imageUploadError);
     }
@@ -104,7 +99,7 @@ const UpdateSubcategory = asyncHandler(async (req, res) => {
         const updatedSubcategory = await Subcategory.findByIdAndUpdate(
             subcategoryId,
             payload,
-            { new: true, runValidators: true }
+            {new: true, runValidators: true}
         );
 
         if (!updatedSubcategory) {
@@ -124,10 +119,10 @@ const UpdateSubcategory = asyncHandler(async (req, res) => {
 
 
 const DeleteSubcategory = asyncHandler(async (req, res) => {
-    const { subcategoryId, categoryId } = req.params;
+    const {subcategoryId, categoryId} = req.params;
 
     try {
-        const deletedSubcategory = await Subcategory.findOneAndDelete({ _id: subcategoryId, category: categoryId });
+        const deletedSubcategory = await Subcategory.findOneAndDelete({_id: subcategoryId, category: categoryId});
 
         if (!deletedSubcategory) {
             return handleErrorResponse(res, 'Subcategory not found', 404);

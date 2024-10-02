@@ -19,7 +19,7 @@ router.get('/:categoryId', GetSingleCategory);
 
 router.post('/', auth, upload.single('category-image') ,AddCategory);
 
-router.put('/:categoryId', auth, UpdateCategory);
+router.put('/:categoryId', auth, upload.single('category-image'), UpdateCategory);
 
 router.delete('/:categoryId', auth, DeleteCategory);
 

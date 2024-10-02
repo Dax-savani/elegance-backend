@@ -34,9 +34,8 @@ const GetSingleCategory = asyncHandler(async (req, res) => {
 
 const AddCategory = asyncHandler(async (req, res) => {
     const { categoryName } = req.body;
-    const image = req.files['category-image'] ? req.files['category-image'][0] : null;
 
-    const categoryImage = image ? await uploadCategoryImage(image.buffer) : null;
+    const categoryImage = req.file && req.file.buffer ? await uploadCategoryImage(req.file.buffer) : null;
 
     if (!categoryName) {
         return handleErrorResponse(res, 'Category name is required', 400);
@@ -63,10 +62,9 @@ const UpdateCategory = asyncHandler(async (req, res) => {
     };
 
     try {
-        const image = req.files['category-image'] ? req.files['category-image'][0] : null;
-        if (image) {
-            const categoryImage = await uploadCategoryImage(image.buffer);
-            if (categoryImage ) payload.categoryImage  = categoryImage ;
+        const categoryImage = req.file && req.file.buffer ? await uploadCategoryImage(req.file.buffer) : null;
+        if (categoryImage) {
+            payload.categoryImage  = categoryImage ;
         }
     } catch (imageUploadError) {
         return handleErrorResponse(res, 'Failed to upload Category image', 500, imageUploadError);
