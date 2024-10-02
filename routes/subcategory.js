@@ -3,12 +3,15 @@ const {auth} = require("../middlewares/auth");
 const {
     GetSingleSubcategory,
     GetAllSubcategories,
+    GetAllSubcategoriesByCategory,
     UpdateSubcategory,
     DeleteSubcategory,
     AddSubcategory
 } = require('../controllers/subcategory');
 
-router.get('/:categoryId/subcategory', GetAllSubcategories);
+router.get('/:categoryId/subcategory', GetAllSubcategoriesByCategory);
+
+router.get('/subcategory', GetAllSubcategories);
 
 router.get('/:categoryId/subcategory/:subcategoryId', GetSingleSubcategory);
 
