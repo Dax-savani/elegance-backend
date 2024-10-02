@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema({
   address_details: {
     type: addressSchema,
   }
-});
+},{timestamps: true});
 
 userSchema.pre("save", async function (next) {
   if (this.isModified("password") || this.isNew) {
