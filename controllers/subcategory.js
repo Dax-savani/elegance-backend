@@ -1,6 +1,7 @@
 const Subcategory = require('../models/subcategory');
 const Category = require('../models/category');
 const asyncHandler = require('express-async-handler');
+const {uploadSubCategoryImage} = require("../helpers/productImage");
 
 const handleErrorResponse = (res, message, statusCode = 500, error = null) => {
     return res.status(statusCode).json({
@@ -69,6 +70,9 @@ const GetSingleSubcategory = asyncHandler(async (req, res) => {
 const AddSubcategory = asyncHandler(async (req, res) => {
     const { categoryId } = req.params;
     const { subcategoryName } = req.body;
+    const image = req.files['subcategory-image'] ? req.files['subcategory-image'][0] : null;
+
+    const subCategoryImage = image ? await uploadSubCategoryImage(image.buffer) : null;
 
     if (!subcategoryName || !categoryId) {
         return handleErrorResponse(res, 'Subcategory name and category ID are required', 400);
@@ -77,7 +81,8 @@ const AddSubcategory = asyncHandler(async (req, res) => {
     try {
         const newSubcategory = await Subcategory.create({
             subcategoryName,
-            category: categoryId
+            category: categoryId,
+            subCategoryImage
         });
 
         return res.status(201).json({
@@ -98,10 +103,25 @@ const UpdateSubcategory = asyncHandler(async (req, res) => {
         return handleErrorResponse(res, 'Subcategory name and category ID are required', 400);
     }
 
+    const payload = {
+        category: categoryId,
+        subcategoryName
+    };
+
+    try {
+        const image = req.files['subcategory-image'] ? req.files['subcategory-image'][0] : null;
+        if (image) {
+            const subCategoryImage = await uploadSubCategoryImage(image.buffer);
+            if (subCategoryImage) payload.subCategoryImage = subCategoryImage;
+        }
+    } catch (imageUploadError) {
+        return handleErrorResponse(res, 'Failed to upload subcategory image', 500, imageUploadError);
+    }
+
     try {
         const updatedSubcategory = await Subcategory.findByIdAndUpdate(
             subcategoryId,
-            { subcategoryName, category: categoryId },
+            payload,
             { new: true, runValidators: true }
         );
 
@@ -114,10 +134,12 @@ const UpdateSubcategory = asyncHandler(async (req, res) => {
             message: 'Subcategory updated successfully',
             data: updatedSubcategory
         });
-    } catch (err) {
-        return handleErrorResponse(res, 'Failed to update subcategory', 500, err);
+
+    } catch (updateError) {
+        return handleErrorResponse(res, 'Failed to update subcategory', 500, updateError);
     }
 });
+
 
 const DeleteSubcategory = asyncHandler(async (req, res) => {
     const { subcategoryId, categoryId } = req.params;

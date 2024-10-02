@@ -7,7 +7,7 @@ const upload = multer({storage: storage});
 
 router.get('/', GetAllProducts);
 router.get('/:productId', GetSingleProduct);
-router.get('/best-seller', BestSellingProduct);
+router.get('/best-seller/product', BestSellingProduct);
 router.post('/',auth, upload.fields([
     {name: 'thumbnail', maxCount: 1},
     {name: 'gallery', maxCount: 5}
