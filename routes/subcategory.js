@@ -21,7 +21,7 @@ router.get('/:categoryId/subcategory/:subcategoryId', GetSingleSubcategory);
 
 router.post('/:categoryId/subcategory', auth, upload.single('subcategory-image') ,AddSubcategory);
 
-router.put('/:categoryId/subcategory/:subcategoryId', auth, UpdateSubcategory);
+router.put('/:categoryId/subcategory/:subcategoryId', auth, upload.single('subcategory-image'), UpdateSubcategory);
 
 router.delete('/:categoryId/subcategory/:subcategoryId', auth, DeleteSubcategory);
 
