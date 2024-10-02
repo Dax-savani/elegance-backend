@@ -16,10 +16,6 @@ const GetAllSubcategories = asyncHandler(async (req, res) => {
     try {
         const subcategories = await Subcategory.find();
 
-        if (!subcategories || subcategories.length < 1) {
-            return handleErrorResponse(res, 'No subcategories found for this category', 404);
-        }
-
         return res.status(200).json({
             status: 200,
             data: subcategories
