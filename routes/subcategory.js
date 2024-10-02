@@ -3,6 +3,7 @@ const {auth} = require("../middlewares/auth");
 const {
     GetSingleSubcategory,
     GetAllSubcategories,
+    GetAllSubcategoriesByCategory,
     UpdateSubcategory,
     DeleteSubcategory,
     AddSubcategory
@@ -12,7 +13,9 @@ const storage = multer.memoryStorage();
 const upload = multer({storage: storage});
 
 
-router.get('/:categoryId/subcategory', GetAllSubcategories);
+router.get('/:categoryId/subcategory', GetAllSubcategoriesByCategory);
+
+router.get('/subcategory', GetAllSubcategories);
 
 router.get('/:categoryId/subcategory/:subcategoryId', GetSingleSubcategory);
 

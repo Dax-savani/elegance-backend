@@ -12,6 +12,24 @@ const handleErrorResponse = (res, message, statusCode = 500, error = null) => {
 };
 
 const GetAllSubcategories = asyncHandler(async (req, res) => {
+
+    try {
+        const subcategories = await Subcategory.find();
+
+        if (!subcategories || subcategories.length < 1) {
+            return handleErrorResponse(res, 'No subcategories found for this category', 404);
+        }
+
+        return res.status(200).json({
+            status: 200,
+            data: subcategories
+        });
+    } catch (err) {
+        return handleErrorResponse(res, 'Failed to fetch subcategories', 500, err);
+    }
+});
+
+const GetAllSubcategoriesByCategory = asyncHandler(async (req, res) => {
     const {categoryId} = req.params;
 
     try {
@@ -142,6 +160,7 @@ module.exports = {
     GetAllSubcategories,
     GetSingleSubcategory,
     AddSubcategory,
+    GetAllSubcategoriesByCategory,
     UpdateSubcategory,
     DeleteSubcategory
 };
