@@ -7,7 +7,7 @@ router.get('/:cartId',GetSingleCartItem);
 
 router.post('/',AddCartItem);
 
-router.put('/:cartId',EditCart);
+router.put('/',EditCart);
 
 router.delete('/:cartId',DeleteCartItem);
 

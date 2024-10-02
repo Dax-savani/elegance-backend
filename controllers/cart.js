@@ -47,28 +47,13 @@ const GetSingleCartItem = asyncHandler(async (req, res) => {
 });
 
 const AddCartItem = asyncHandler(async (req, res) => {
-    const { product_id, cartQuantity } = req.body;
+    const { products } = req.body;
     const {_id} = req.user
 
-    if (!product_id || !cartQuantity) {
-        return handleErrorResponse(res, 'Product ID and quantity are required', 400);
-    }
-
     try {
-        const product = await Product.findById(product_id).exec();
-        if (!product) {
-            return handleErrorResponse(res, 'Product not found', 404);
-        }
-
-        const existingCartItem = await Cart.findOne({ user_id: _id, product_id }).exec();
-        if (existingCartItem) {
-            return handleErrorResponse(res, 'Product is already in the cart', 400);
-        }
-
         const newCartItem = await Cart.create({
             user_id: _id,
-            product_id,
-            cartQuantity
+            products,
         });
 
         return res.status(201).json({
@@ -82,48 +67,24 @@ const AddCartItem = asyncHandler(async (req, res) => {
 });
 
 const EditCart = asyncHandler(async (req, res) => {
-    const { cartId } = req.params;
-    const { cartQuantity } = req.body;
+    const { products } = req.body;
+    const { cartId } = req.params
 
-    if (!cartQuantity) {
-        return handleErrorResponse(res, 'Quantity is required', 400);
-    }
-
-    if (cartQuantity === 0) {
-        try {
-            const removedCartItem = await Cart.findByIdAndDelete(cartId).exec();
-            if (!removedCartItem) {
-                return handleErrorResponse(res, 'Cart item not found', 404);
-            }
-
-            return res.status(200).json({
-                status: 200,
-                message: 'Product removed from cart',
-                data: removedCartItem
-            });
-        } catch (error) {
-            return handleErrorResponse(res, 'Failed to remove product from cart', 500, error);
-        }
+    if (!products || !Array.isArray(products) || products.length === 0) {
+        return handleErrorResponse(res, 'Cart items are required', 400);
     }
 
     try {
-        const updatedCartItem = await Cart.findByIdAndUpdate(
-            cartId,
-            { cartQuantity },
-            { new: true, runValidators: true }
-        ).exec();
 
-        if (!updatedCartItem) {
-            return handleErrorResponse(res, 'Cart item not found', 404);
-        }
+        const result = await Cart.findByIdAndUpdate(cartId, {products}, {new: true}).exec();
 
         return res.status(200).json({
             status: 200,
-            message: 'Cart item updated successfully',
-            data: updatedCartItem
+            message: 'Cart items updated successfully',
+            data: result
         });
     } catch (error) {
-        return handleErrorResponse(res, 'Failed to update cart item', 500, error);
+        return handleErrorResponse(res, 'Failed to update cart items', 500, error);
     }
 });
 
@@ -131,11 +92,6 @@ const DeleteCartItem = asyncHandler(async (req, res) => {
     const { cartId } = req.params;
 
     try {
-        const cartItem = await Cart.findById(cartId).exec();
-        if (!cartItem) {
-            return handleErrorResponse(res, 'Cart item not found', 404);
-        }
-
         const deletedCartItem = await Cart.findByIdAndDelete(cartId).exec();
         return res.status(200).json({
             status: 200,
