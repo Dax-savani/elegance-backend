@@ -1,6 +1,8 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 const asyncHandler = require("express-async-handler");
 const {uploadFiles} = require('../helpers/productImage');
+const moment = require('moment');
 
 const GetAllProducts = asyncHandler(async (req, res) => {
     const products = await Product.find({});
@@ -30,8 +32,8 @@ const AddProduct = asyncHandler(async (req, res) => {
             description
         } = req.body;
 
-        const thumbnail = req.files.thumbnail;
-        const gallery = req.files.gallery;
+        const {thumbnail, gallery} = req.files;
+
         const galleryBuffers = gallery.map(file => file.buffer);
         const thumbnailBuffers = thumbnail.map(file => file.buffer);
 
@@ -64,6 +66,49 @@ const AddProduct = asyncHandler(async (req, res) => {
         });
     }
 });
+
+const BestSellingProduct = asyncHandler(async (req, res) => {
+    try {
+        const lastWeekStart = moment().subtract(1, 'weeks').startOf('week').toDate();
+        const lastWeekEnd = moment().subtract(1, 'weeks').endOf('week').toDate();
+
+        const orders = await Order.find({
+            createdAt: { $gte: lastWeekStart, $lte: lastWeekEnd },
+            status: { $ne: 'cancelled' }
+        })
+            .populate('product_id')
+            .exec();
+
+        const productSales = {};
+
+        orders.forEach(order => {
+            const productId = order.product_id;
+
+            if (productSales[productId]) {
+                productSales[productId]++;
+            } else {
+                productSales[productId] = 1;
+            }
+        });
+
+        const sortedProductIds = Object.keys(productSales)
+            .sort((a, b) => productSales[b] - productSales[a]);
+
+        const bestSellers = await Product.find({ _id: { $in: sortedProductIds } })
+            .sort({ _id: { $in: sortedProductIds } })
+            .exec();
+
+        return res.status(200).json({
+            status: 200,
+            data: bestSellers
+        });
+
+    } catch (error) {
+        console.error("Error loading product:", err.message);
+        return res.status(500).json({ message: "Failed to load product", error: err.message });
+    }
+});
+
 
 const EditProduct = asyncHandler(async (req, res) => {
     const { productId } = req.params;
@@ -136,4 +181,4 @@ const DeleteProduct = asyncHandler(async (req, res) => {
 })
 
 
-module.exports = {AddProduct, GetAllProducts, DeleteProduct, GetSingleProduct, EditProduct}
+module.exports = {AddProduct, GetAllProducts, DeleteProduct, GetSingleProduct, EditProduct,BestSellingProduct}

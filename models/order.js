@@ -23,6 +23,6 @@ const orderSchema = new Schema({
         default: 'placed',
         required: true
     }
-})
+},{timestamps: true})
 
 module.exports = mongoose.model("Order", orderSchema);
