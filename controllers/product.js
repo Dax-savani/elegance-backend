@@ -69,21 +69,17 @@ const AddProduct = asyncHandler(async (req, res) => {
 
 const BestSellingProduct = asyncHandler(async (req, res) => {
     try {
-        const lastWeekStart = moment().subtract(1, 'weeks').startOf('week').toDate();
-        const lastWeekEnd = moment().subtract(1, 'weeks').endOf('week').toDate();
-
+        const lastWeekStart = moment().subtract(7, 'days').startOf('day').toDate();
+        const todayEnd = moment().endOf('day').toDate();
         const orders = await Order.find({
-            createdAt: { $gte: lastWeekStart, $lte: lastWeekEnd },
+            createdAt: { $gte: lastWeekStart, $lte: todayEnd },
             status: { $ne: 'cancelled' }
         })
-            .populate('product_id')
-            .exec();
 
         const productSales = {};
 
         orders.forEach(order => {
-            const productId = order.product_id;
-
+            const productId = order.product_id
             if (productSales[productId]) {
                 productSales[productId]++;
             } else {
@@ -94,18 +90,21 @@ const BestSellingProduct = asyncHandler(async (req, res) => {
         const sortedProductIds = Object.keys(productSales)
             .sort((a, b) => productSales[b] - productSales[a]);
 
-        const bestSellers = await Product.find({ _id: { $in: sortedProductIds } })
-            .sort({ _id: { $in: sortedProductIds } })
-            .exec();
+        const topProductIds = sortedProductIds.slice(0, 5);
+
+        const bestSellers = await Product.find({ _id: { $in: topProductIds } }).exec();
+
+        const sortedBestSellers = topProductIds.map(id =>
+            bestSellers.find(product => product._id.toString() === id)
+        );
 
         return res.status(200).json({
             status: 200,
-            data: bestSellers
+            data: sortedBestSellers
         });
-
     } catch (error) {
-        console.error("Error loading product:", err.message);
-        return res.status(500).json({ message: "Failed to load product", error: err.message });
+        console.error("Error fetching best-seller products: ", error);
+        return res.status(500).json({ message: "Failed to fetch product", error: error.message })
     }
 });
 
