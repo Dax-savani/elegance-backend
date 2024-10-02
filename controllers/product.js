@@ -13,7 +13,7 @@ const GetAllProducts = asyncHandler(async (req, res) => {
     if(category){
         query.category = category
     }
-    const products = await Product.find(query);
+    const products = await Product.find(query).sort({ createdAt: -1 });
     return res.json(products);
 });
 
