@@ -5,7 +5,15 @@ const {uploadFiles} = require('../helpers/productImage');
 const moment = require('moment');
 
 const GetAllProducts = asyncHandler(async (req, res) => {
-    const products = await Product.find({});
+
+    const {category} = req.query
+
+    let query = {}
+
+    if(category){
+        query.category = category
+    }
+    const products = await Product.find(query);
     return res.json(products);
 });
 
