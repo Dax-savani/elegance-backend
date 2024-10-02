@@ -90,7 +90,7 @@ const BestSellingProduct = asyncHandler(async (req, res) => {
         const sortedProductIds = Object.keys(productSales)
             .sort((a, b) => productSales[b] - productSales[a]);
 
-        const topProductIds = sortedProductIds.slice(0, 5);
+        const topProductIds = sortedProductIds.slice(0, 14);
 
         const bestSellers = await Product.find({ _id: { $in: topProductIds } }).exec();
 
