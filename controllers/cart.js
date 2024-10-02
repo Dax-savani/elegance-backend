@@ -55,8 +55,8 @@ const AddCartItem = asyncHandler(async (req, res) => {
     }
 
     try {
-        const product = await Product.findById(product).exec();
-        if (!product) {
+        const productExist = await Product.findById(product).exec();
+        if (!productExist) {
             return handleErrorResponse(res, 'Product not found', 404);
         }
 
