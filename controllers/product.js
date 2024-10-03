@@ -7,13 +7,12 @@ const {uploadProductImage} = require("../helpers/productImage");
 async function handleFileUploads(files) {
     const thumbnailImage = files['thumbnail'] ? files['thumbnail'][0] : null;
     const productImages= files['gallery'] ? files['gallery'] : null;
-
+    console.log(productImages)
     const thumbnailImageUrl = thumbnailImage ? await uploadProductImage(thumbnailImage.buffer) : null;
     const productImageUrls = productImages ? await Promise.all(productImages.map(async (e) => {
         const url = await uploadProductImage(e.buffer);
-        return url;
+        return url.trim();
     })) : [];
-
 
     return {thumbnailImageUrl, productImageUrls};
 }
@@ -53,6 +52,7 @@ const AddProduct = asyncHandler(async (req, res) => {
             description
         } = req.body;
 
+        console.log(req.body)
 
         const {thumbnailImageUrl, productImageUrls} = await handleFileUploads(req.files);
 

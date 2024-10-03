@@ -1,16 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-// const colorAttributeSchema = new Schema({
-//     color: {
-//         type: String,
-//         required: true
-//     },
-//     img: {
-//         type: String,
-//         required: true
-//     }
-// }, { _id: false });
 
 const shortDescriptionSchema = new Schema({
     text: {
