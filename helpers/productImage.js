@@ -7,26 +7,31 @@ cloudinary.config({
     api_secret: process.env.CLOUD_API_SECRET
 });
 
-const uploadFiles = async (fileBuffers) => {
+const uploadProductImage = async (fileBuffer) => {
     try {
-        const urls = await Promise.all(fileBuffers.map(fileBuffer =>
-            new Promise((resolve, reject) => {
-                const uploadOptions = { folder: "Elegance-productImages" };
-                const stream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
-                    if (error) {
-                        console.error("Cloudinary upload error:", error.message);
-                        reject(error);
-                    } else {
-                        resolve(result.secure_url);
-                    }
-                });
-                stream.end(fileBuffer);
-            })
-        ));
-        return urls;
+        const fileSize = fileBuffer?.length;
+        const maxFileSize = 10 * 1024 * 1024;
+
+        if (fileSize > maxFileSize) {
+            throw new Error("File size exceeds the maximum allowed limit.");
+        }
+
+        return new Promise((resolve, reject) => {
+            const uploadOptions = {
+                folder: "elegance-product-images",
+            };
+
+            cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+                if (error) {
+                    reject(error.message);
+                } else {
+                    resolve(result.secure_url);
+                }
+            }).end(fileBuffer);
+        });
     } catch (error) {
-        console.error("Error uploading files:", error.message);
-        throw new Error("Error uploading files.");
+        console.log(error.message);
+        throw new Error("Error uploading file..");
     }
 };
 
@@ -86,4 +91,4 @@ const uploadSubCategoryImage = async (fileBuffer) => {
     }
 };
 
-module.exports = { uploadFiles, uploadCategoryImage, uploadSubCategoryImage };
+module.exports = { uploadProductImage, uploadCategoryImage, uploadSubCategoryImage };

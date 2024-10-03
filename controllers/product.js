@@ -1,16 +1,16 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
 const asyncHandler = require("express-async-handler");
-const {uploadFiles} = require('../helpers/productImage');
 const moment = require('moment');
+const {uploadProductImage} = require("../helpers/productImage");
 
 async function handleFileUploads(files) {
     const thumbnailImage = files['thumbnail'] ? files['thumbnail'][0] : null;
     const productImages= files['gallery'] ? files['gallery'] : null;
 
-    const thumbnailImageUrl = thumbnailImage ? await uploadFiles(thumbnailImage.buffer) : null;
+    const thumbnailImageUrl = thumbnailImage ? await uploadProductImage(thumbnailImage.buffer) : null;
     const productImageUrls = productImages ? await Promise.all(productImages.map(async (e) => {
-        const url = await uploadFiles(e.buffer);
+        const url = await uploadProductImage(e.buffer);
         return url;
     })) : [];
 
@@ -149,8 +149,8 @@ const EditProduct = asyncHandler(async (req, res) => {
     const galleryBuffers = gallery.map(file => file.buffer);
     const thumbnailBuffers = thumbnail.map(file => file.buffer);
 
-    const thumbnailUrl = await uploadFiles(thumbnailBuffers);
-    const galleryUrls = await uploadFiles(galleryBuffers);
+    const thumbnailUrl = await uploadProductImage(thumbnailBuffers);
+    const galleryUrls = await uploadProductImage(galleryBuffers);
     try {
 
         const parsedShortDes = JSON.parse(shortDes);
