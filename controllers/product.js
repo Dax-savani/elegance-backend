@@ -48,13 +48,13 @@ const AddProduct = asyncHandler(async (req, res) => {
             price,
             salePrice,
             description,
-            shortDesText,
-            shortDesListItem,
+            shortDes,
         } = req.body;
 
         const {thumbnailImageUrl, productImageUrls} = await handleFileUploads(req.files);
 
         const parsedDescription = JSON.parse(description);
+        const parsedShortDesc = JSON.parse(shortDes);
         const createdProduct = await Product.create({
             title,
             pCate,
@@ -62,10 +62,7 @@ const AddProduct = asyncHandler(async (req, res) => {
             cate,
             price: Number(price),
             salePrice: Number(salePrice),
-            shortDes: {
-                text: shortDesText,
-                listItem: shortDesListItem
-            },
+            shortDes: parsedShortDesc,
             description: parsedDescription,
             gallery: productImageUrls
         });
@@ -133,13 +130,13 @@ const EditProduct = asyncHandler(async (req, res) => {
         cate,
         price,
         salePrice,
-        shortDesListItem,
-        shortDesText,
+        shortDesc,
         description
     } = req.body;
 
 
     const parsedDescription = JSON.parse(description);
+    const parsedShortDesc = JSON.parse(shortDesc);
 
     const payload = {
         title,
@@ -147,10 +144,7 @@ const EditProduct = asyncHandler(async (req, res) => {
         cate,
         price: Number(price),
         salePrice: Number(salePrice),
-        shortDes: {
-            text: shortDesText,
-            listItem: shortDesListItem
-        },
+        shortDes: parsedShortDesc,
         description: parsedDescription,
     }
 
