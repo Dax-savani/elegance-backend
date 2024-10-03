@@ -56,7 +56,8 @@ const productSchema = new Schema({
     },
     pCate: {
         type: String,
-        required: true
+        required: true,
+        ref: "Category"
     },
     cate: {
         type: [String],

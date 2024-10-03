@@ -7,13 +7,12 @@ const moment = require('moment');
 const GetAllProducts = asyncHandler(async (req, res) => {
 
     const {category} = req.query
-
     let query = {}
 
     if(category){
-        query.category = category
+        query.pCate = category
     }
-    const products = await Product.find(query).sort({ createdAt: -1 });
+    const products = await Product.find(query).populate('pCate').sort({ createdAt: -1 });
     return res.json(products);
 });
 
