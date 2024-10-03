@@ -5,8 +5,8 @@ const {uploadFiles} = require('../helpers/productImage');
 const moment = require('moment');
 
 async function handleFileUploads(files) {
-    const thumbnailImage = files['asset-image'] ? files['asset-image'][0] : null;
-    const productImages= files['invoice-image'] ? files['invoice-image'] : null;
+    const thumbnailImage = files['thumbnail'] ? files['thumbnail'][0] : null;
+    const productImages= files['gallery'] ? files['gallery'] : null;
 
     const thumbnailImageUrl = thumbnailImage ? await uploadFiles(thumbnailImage.buffer) : null;
     const productImageUrls = productImages ? await Promise.all(productImages.map(async (e) => {
