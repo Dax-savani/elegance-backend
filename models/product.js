@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const {Schema} = mongoose;
 
 
 const shortDescriptionSchema = new Schema({
@@ -11,7 +11,7 @@ const shortDescriptionSchema = new Schema({
         type: [String],
         required: true
     }
-}, { _id: false });
+}, {_id: false});
 
 const descriptionTextSchema = new Schema({
     title: {
@@ -22,18 +22,8 @@ const descriptionTextSchema = new Schema({
         type: String,
         required: true
     }
-}, { _id: false });
+}, {_id: false});
 
-const descriptionListSchema = new Schema({
-    icon: {
-        type: String,
-        required: true
-    },
-    title: {
-        type: String,
-        required: true
-    }
-}, { _id: false });
 
 const productSchema = new Schema({
     title: {
@@ -50,8 +40,9 @@ const productSchema = new Schema({
         ref: "Category"
     },
     cate: {
-        type: [String],
-        required: true
+        type: String,
+        required: true,
+        ref: "Subcategory"
     },
     price: {
         type: Number,
@@ -61,28 +52,18 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    productType: {
-        type: String,
-        required: true
-    },
     gallery: {
         type: [String],
         required: false
     },
     shortDes: {
-        type: shortDescriptionSchema,
+        type: {shortDescriptionSchema},
         required: true
     },
     description: {
-        textDesc: {
-            type: [descriptionTextSchema],
-            required: false
-        },
-        // listDesc: {
-        //     type: [descriptionListSchema],
-        //     required: false
-        // }
+        type: [descriptionTextSchema],
+        required: false
     }
-}, { timestamps: true });
+}, {timestamps: true});
 
 module.exports = mongoose.model("Product", productSchema);

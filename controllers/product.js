@@ -47,11 +47,9 @@ const AddProduct = asyncHandler(async (req, res) => {
             cate,
             price,
             salePrice,
-            productType,
             description,
             shortDesText,
             shortDesListItem,
-
         } = req.body;
 
         console.log(req.body)
@@ -63,10 +61,9 @@ const AddProduct = asyncHandler(async (req, res) => {
             title,
             pCate,
             thumbnail: thumbnailImageUrl,
-            cate: JSON.parse(cate),
+            cate,
             price: Number(price),
             salePrice: Number(salePrice),
-            productType,
             shortDes: {
                 text: shortDesText,
                 listItem: shortDesListItem
