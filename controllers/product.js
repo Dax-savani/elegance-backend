@@ -48,15 +48,15 @@ const AddProduct = asyncHandler(async (req, res) => {
             price,
             salePrice,
             productType,
-            shortDes,
-            description
+            description,
+            shortDesText,
+            shortDesListItem
         } = req.body;
 
         console.log(req.body)
 
         const {thumbnailImageUrl, productImageUrls} = await handleFileUploads(req.files);
 
-        const parsedShortDes = JSON.parse(shortDes);
         const parsedDescription = JSON.parse(description);
         const createdProduct = await Product.create({
             title,
@@ -66,7 +66,10 @@ const AddProduct = asyncHandler(async (req, res) => {
             price: Number(price),
             salePrice: Number(salePrice),
             productType,
-            shortDes: parsedShortDes,
+            shortDes: {
+                text: shortDesText,
+                listItem: shortDesListItem
+            },
             description: parsedDescription,
             gallery: productImageUrls
         });
