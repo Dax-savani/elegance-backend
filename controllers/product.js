@@ -130,13 +130,13 @@ const EditProduct = asyncHandler(async (req, res) => {
         cate,
         price,
         salePrice,
-        shortDesc,
+        shortDes,
         description
     } = req.body;
 
 
     const parsedDescription = JSON.parse(description);
-    const parsedShortDesc = JSON.parse(shortDesc);
+    const parsedShortDesc = JSON.parse(shortDes);
 
     const payload = {
         title,
