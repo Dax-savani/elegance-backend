@@ -24,12 +24,12 @@ const GetAllProducts = asyncHandler(async (req, res) => {
     if(category){
         query.pCate = category
     }
-    const products = await Product.find(query).populate('pCate').populate('cate').populate('shortDesc').sort({ createdAt: -1 });
+    const products = await Product.find(query).populate('pCate').populate('cate').populate('shortDes').sort({ createdAt: -1 });
     return res.json(products);
 });
 
 const GetSingleProduct = asyncHandler(async (req, res) => {
-    const product = await Product.findById(req.params.productId).populate('pCate').populate('cate').populate('shortDesc');
+    const product = await Product.findById(req.params.productId).populate('pCate').populate('cate').populate('shortDes');
     if (product) {
         return res.status(200).json(product)
     } else {
