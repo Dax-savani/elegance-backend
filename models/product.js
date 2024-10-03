@@ -78,10 +78,10 @@ const productSchema = new Schema({
             type: [descriptionTextSchema],
             required: false
         },
-        listDesc: {
-            type: [descriptionListSchema],
-            required: false
-        }
+        // listDesc: {
+        //     type: [descriptionListSchema],
+        //     required: false
+        // }
     }
 }, { timestamps: true });
 

@@ -50,7 +50,8 @@ const AddProduct = asyncHandler(async (req, res) => {
             productType,
             description,
             shortDesText,
-            shortDesListItem
+            shortDesListItem,
+
         } = req.body;
 
         console.log(req.body)
