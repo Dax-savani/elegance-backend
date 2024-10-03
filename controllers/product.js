@@ -4,6 +4,20 @@ const asyncHandler = require("express-async-handler");
 const {uploadFiles} = require('../helpers/productImage');
 const moment = require('moment');
 
+async function handleFileUploads(files) {
+    const thumbnailImage = files['asset-image'] ? files['asset-image'][0] : null;
+    const productImages= files['invoice-image'] ? files['invoice-image'] : null;
+
+    const thumbnailImageUrl = thumbnailImage ? await uploadFiles(thumbnailImage.buffer) : null;
+    const productImageUrls = productImages ? await Promise.all(productImages.map(async (e) => {
+        const url = await uploadFiles(e.buffer);
+        return url;
+    })) : [];
+
+
+    return {thumbnailImageUrl, productImageUrls};
+}
+
 const GetAllProducts = asyncHandler(async (req, res) => {
 
     const {category} = req.query
@@ -39,26 +53,22 @@ const AddProduct = asyncHandler(async (req, res) => {
             description
         } = req.body;
 
-        const {thumbnail, gallery} = req.files;
 
-        const galleryBuffers = gallery.map(file => file.buffer);
-        const thumbnailBuffers = thumbnail.map(file => file.buffer);
+        const {thumbnailImageUrl, productImageUrls} = await handleFileUploads(req.files);
 
-        const thumbnailUrl = await uploadFiles(thumbnailBuffers);
-        const galleryUrls = await uploadFiles(galleryBuffers);
         const parsedShortDes = JSON.parse(shortDes);
         const parsedDescription = JSON.parse(description);
         const createdProduct = await Product.create({
             title,
             pCate,
-            thumbnail: thumbnailUrl[0],
+            thumbnail: thumbnailImageUrl,
             cate: JSON.parse(cate),
             price: Number(price),
             salePrice: Number(salePrice),
             productType,
             shortDes: parsedShortDes,
             description: parsedDescription,
-            gallery: galleryUrls
+            gallery: productImageUrls
         });
 
         return res.status(201).json({
