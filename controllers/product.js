@@ -25,7 +25,7 @@ const GetAllProducts = asyncHandler(async (req, res) => {
     if(category){
         query.pCate = category
     }
-    const products = await Product.find(query).populate('pCate').sort({ createdAt: -1 });
+    const products = await Product.find(query).populate('pCate').populate('cate').sort({ createdAt: -1 });
     return res.json(products);
 });
 
@@ -51,8 +51,6 @@ const AddProduct = asyncHandler(async (req, res) => {
             shortDesText,
             shortDesListItem,
         } = req.body;
-
-        console.log(req.body)
 
         const {thumbnailImageUrl, productImageUrls} = await handleFileUploads(req.files);
 
@@ -135,42 +133,45 @@ const EditProduct = asyncHandler(async (req, res) => {
         cate,
         price,
         salePrice,
-        productType,
-        shortDes,
+        shortDesListItem,
+        shortDesText,
         description
     } = req.body;
 
+
+    const parsedDescription = JSON.parse(description);
+
+    const payload = {
+        title,
+        pCate,
+        cate,
+        price: Number(price),
+        salePrice: Number(salePrice),
+        shortDes: {
+            text: shortDesText,
+            listItem: shortDesListItem
+        },
+        description: parsedDescription,
+    }
+
     const existingProduct = await Product.findById(productId);
+
     if (!existingProduct) {
         return res.status(404).json({ status: 404, message: "Product not found" });
     }
 
-    const thumbnail = req.files.thumbnail;
-    const gallery = req.files.gallery;
-    const galleryBuffers = gallery.map(file => file.buffer);
-    const thumbnailBuffers = thumbnail.map(file => file.buffer);
+    if (req.files && Object.keys(req.files).length > 0) {
+        const {thumbnailImageUrl, productImageUrls} = await handleFileUploads(req.files);
 
-    const thumbnailUrl = await uploadProductImage(thumbnailBuffers);
-    const galleryUrls = await uploadProductImage(galleryBuffers);
+        if(thumbnailImageUrl) payload.thumbnail= thumbnailImageUrl
+        if(productImageUrls) payload.gallery = productImageUrls
+    }
+
     try {
-
-        const parsedShortDes = JSON.parse(shortDes);
-        const parsedDescription = JSON.parse(description);
 
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
-            {
-                title,
-                thumbnail:thumbnailUrl[0],
-                pCate,
-                cate: JSON.parse(cate),
-                price: Number(price),
-                salePrice: Number(salePrice),
-                productType,
-                gallery: galleryUrls,
-                shortDes: parsedShortDes,
-                description: parsedDescription
-            },
+            payload,
             { runValidators: true, new: true }
         );
 
