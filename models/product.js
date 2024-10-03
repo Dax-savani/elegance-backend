@@ -73,7 +73,7 @@ const productSchema = new Schema({
         }
     },
     shortDes: {
-        type: shortDescriptionSchema,
+        type: {shortDescriptionSchema},
         required: true
     },
     description: {
