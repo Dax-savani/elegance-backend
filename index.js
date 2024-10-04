@@ -16,6 +16,7 @@ const cartRouter = require("./routes/cart");
 const orderRouter = require("./routes/order");
 const wishlistRouter = require("./routes/wishlist");
 const categoryRouter = require("./routes/category");
+const contactRouter = require("./routes/contact");
 const cors = require('cors');
 
 //connection to database
@@ -42,6 +43,7 @@ app.use("/api/category",  categoryRouter);
 app.use("/api/cart", auth, cartRouter);
 app.use("/api/order", auth, orderRouter);
 app.use("/api/wishlist", auth, wishlistRouter);
+app.use("/api/contact", contactRouter);
 
 
 app.use(notFound);
