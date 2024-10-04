@@ -1,10 +1,10 @@
 const User = require("../models/user");
-const { generateToken } = require("../auth/jwt");
+const {generateToken} = require("../auth/jwt");
 const asyncHandler = require("express-async-handler");
-
+const bcrypt = require("bcrypt");
 
 const errorResponse = (res, message, statusCode = 400) => {
-    return res.status(statusCode).json({ message, status: statusCode });
+    return res.status(statusCode).json({message, status: statusCode});
 };
 
 const formatUserData = (user) => ({
@@ -18,10 +18,10 @@ const formatUserData = (user) => ({
 
 
 const register = asyncHandler(async (req, res) => {
-    const { email, phone_number } = req.body;
+    const {email, phone_number} = req.body;
 
     const userExists = await User.exists({
-        $or: [{ email }, { phone_number }]
+        $or: [{email}, {phone_number}]
     });
 
     if (userExists) {
@@ -38,20 +38,32 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const userEdit = asyncHandler(async (req, res) => {
-    const aa = req.user;
-    // const user = req.body;
+    const userId = req.user;
+    const user = req.body;
+    const editedUser = await User.findByIdAndUpdate(userId, user);
 
+    return res.status(200).json({
+        data: editedUser,
+        message: "User Updated successfully",
+        status: 201,
+    });
+});
 
-    const user = await User.findByIdAndUpdate(req.user);
-    //
-    // if (userExists) {
-    //     return errorResponse(res, "User already exists", 409);
-    // }
-    //
-    // const newUser = await User.create(req.body);
+const passwordEdit = asyncHandler(async (req, res) => {
+    const user = req.user;
+    const {currentPassword, newPassword} = req.body;
 
+    const isMatch = await user.isPasswordMatched(currentPassword);
+
+    if (!isMatch) {
+        return errorResponse(res, "Invalid credentials", 401);
+    }
+
+    const encryptedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await User.findByIdAndUpdate(user._id, {password: encryptedPassword}, { new: true })
+    const {password, ...userWithoutPassword} = updatedUser._doc;
     return res.status(201).json({
-        data: user,
+        data: userWithoutPassword,
         message: "User Updated successfully",
         status: 201,
     });
@@ -59,16 +71,17 @@ const userEdit = asyncHandler(async (req, res) => {
 
 const me = asyncHandler(async (req, res) => {
     const currentUser = req.user;
+    const {password, ...userWithoutPassword} = currentUser._doc;
     return res.status(201).json({
-        data: currentUser,
+        data: userWithoutPassword,
         status: 201,
     });
 });
 
 const login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const {email, password} = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({email});
 
     if (!user) {
         return errorResponse(res, "User not found", 404);
@@ -93,4 +106,4 @@ const login = asyncHandler(async (req, res) => {
     });
 });
 
-module.exports = { register, login , me , userEdit};
+module.exports = {register, login, me, userEdit, passwordEdit};

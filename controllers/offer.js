@@ -30,7 +30,6 @@ const AddOffer = asyncHandler(async (req, res) => {
         });
     }
     const offerImages = offerImageUrls.map((url) => ({ offer_images: url }));
-    console.log("offerImages : ",offerImages)
     try {
 
         const insertedImages = await OfferModel.insertMany(offerImages);
