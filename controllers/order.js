@@ -12,7 +12,7 @@ const handleErrorResponse = (res, message, statusCode = 500, error = null) => {
 
 const GetAllOrders = asyncHandler(async (req, res) => {
     try {
-        const orders = await Order.find().populate('product_id').exec();
+        const orders = await Order.find().populate('product_id').populate('user_id').exec();
         return res.status(200).json({
             status: 200,
             data: orders
@@ -27,7 +27,7 @@ const GetSingleOrder = asyncHandler(async (req, res) => {
     const { orderId } = req.params;
 
     try {
-        const order = await Order.findById(orderId).populate('product_id').exec();
+        const order = await Order.findById(orderId).populate('user_id').populate('product_id').exec();
         if (!order) {
             return handleErrorResponse(res, 'Order not found', 404);
         }
