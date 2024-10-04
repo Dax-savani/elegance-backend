@@ -38,6 +38,14 @@ const register = asyncHandler(async (req, res) => {
     });
 });
 
+const me = asyncHandler(async (req, res) => {
+    const currentUser = req.user;
+    return res.status(201).json({
+        data: currentUser,
+        status: 201,
+    });
+});
+
 const login = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
@@ -66,4 +74,4 @@ const login = asyncHandler(async (req, res) => {
     });
 });
 
-module.exports = { register, login };
+module.exports = { register, login , me};
