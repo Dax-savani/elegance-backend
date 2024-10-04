@@ -59,11 +59,14 @@ const AddOrder = asyncHandler(async (req, res) => {
             return handleErrorResponse(res, 'Invalid order status', 400);
         }
 
+
         const newOrder = await Order.create({
             user_id: req.user._id,
             product_id,
             qty,
-            totalPrice: Number(qty) * Number(product.salePrice),
+            shippingPrice:(Number(qty) * Number(product.salePrice)) < 499 ? 99 : 0,
+            subTotalPrice: Number(qty) * Number(product.salePrice),
+            totalPrice: (Number(qty) * Number(product.salePrice)) < 499 ? Number(qty) * Number(product.salePrice) + 99 : Number(qty) * Number(product.salePrice),
             status
         });
 
