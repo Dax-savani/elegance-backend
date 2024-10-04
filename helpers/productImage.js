@@ -34,6 +34,33 @@ const uploadProductImage = async (fileBuffer) => {
         throw new Error("Error uploading file..");
     }
 };
+const uploadOffersImage = async (fileBuffer) => {
+    try {
+        const fileSize = fileBuffer?.length;
+        const maxFileSize = 10 * 1024 * 1024;
+
+        if (fileSize > maxFileSize) {
+            throw new Error("File size exceeds the maximum allowed limit.");
+        }
+
+        return new Promise((resolve, reject) => {
+            const uploadOptions = {
+                folder: "elegance-offer-images",
+            };
+
+            cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+                if (error) {
+                    reject(error.message);
+                } else {
+                    resolve(result.secure_url);
+                }
+            }).end(fileBuffer);
+        });
+    } catch (error) {
+        console.log(error.message);
+        throw new Error("Error uploading file..");
+    }
+};
 
 const uploadCategoryImage = async (fileBuffer) => {
     try {
@@ -91,4 +118,4 @@ const uploadSubCategoryImage = async (fileBuffer) => {
     }
 };
 
-module.exports = { uploadProductImage, uploadCategoryImage, uploadSubCategoryImage };
+module.exports = { uploadProductImage, uploadCategoryImage, uploadSubCategoryImage , uploadOffersImage };

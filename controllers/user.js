@@ -10,7 +10,6 @@ const errorResponse = (res, message, statusCode = 400) => {
 const formatUserData = (user) => ({
     first_name: user?.first_name,
     last_name: user?.last_name,
-    dob: user?.dob,
     phone_number: user?.phone_number,
     email: user?.email,
     address_details: user?.address_details,
@@ -34,6 +33,26 @@ const register = asyncHandler(async (req, res) => {
     return res.status(201).json({
         data: newUser,
         message: "Registered successfully",
+        status: 201,
+    });
+});
+
+const userEdit = asyncHandler(async (req, res) => {
+    const aa = req.user;
+    // const user = req.body;
+
+
+    const user = await User.findByIdAndUpdate(req.user);
+    //
+    // if (userExists) {
+    //     return errorResponse(res, "User already exists", 409);
+    // }
+    //
+    // const newUser = await User.create(req.body);
+
+    return res.status(201).json({
+        data: user,
+        message: "User Updated successfully",
         status: 201,
     });
 });
@@ -74,4 +93,4 @@ const login = asyncHandler(async (req, res) => {
     });
 });
 
-module.exports = { register, login , me};
+module.exports = { register, login , me , userEdit};

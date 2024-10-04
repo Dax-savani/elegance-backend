@@ -1,6 +1,16 @@
-const {uploadFiles} = require('../helpers/productImage');
 const asyncHandler = require("express-async-handler");
 const OfferModel = require('../models/offer');
+const {uploadOffersImage} = require("../helpers/productImage");
+
+async function handleFileUploads(files) {
+    const offerImageUrls = files ? await Promise.all(files.map(async (e) => {
+        const url = await uploadOffersImage(e.buffer);
+        return url.trim();
+    })) : [];
+
+    return { offerImageUrls};
+}
+
 
 const GetAllOffers = asyncHandler(async (req, res) => {
     const offers = await OfferModel.find({}).sort({ createdAt: -1 });
@@ -12,20 +22,18 @@ const GetAllOffers = asyncHandler(async (req, res) => {
 
 const AddOffer = asyncHandler(async (req, res) => {
     const files = req.files;
-    const fileBuffers = files.map(file => file.buffer);
-    const imageUrls = await uploadFiles(fileBuffers);
-
-    if (!imageUrls || imageUrls.length <= 0) {
+    const { offerImageUrls} = await handleFileUploads(files);
+    if (!offerImageUrls || offerImageUrls.length <= 0) {
         return res.status(400).json({
             status: 'error',
             message: 'Please provide at least 1 image',
         });
     }
-
+    const offerImages = offerImageUrls.map((url) => ({ offer_images: url }));
+    console.log("offerImages : ",offerImages)
     try {
-        const offerData = imageUrls.map(url => ({ offer_images: url }));
 
-        const insertedImages = await OfferModel.insertMany(offerData);
+        const insertedImages = await OfferModel.insertMany(offerImages);
 
         return res.status(201).json({
             status: 'success',
