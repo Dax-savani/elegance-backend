@@ -63,6 +63,7 @@ const AddOrder = asyncHandler(async (req, res) => {
             user_id: req.user._id,
             product_id,
             qty,
+            totalPrice: Number(qty) * Number(product.salePrice),
             status
         });
 

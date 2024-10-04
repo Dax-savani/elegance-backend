@@ -17,6 +17,10 @@ const orderSchema = new Schema({
         default: 1,
         required: true,
     },
+    totalPrice: {
+      type: String,
+       required: true
+    },
     status: {
         type: String,
         enum: ['placed', 'confirmed', 'shipped', 'delivered', 'cancelled'],
