@@ -13,6 +13,7 @@ const productRouter = require("./routes/product");
 const cartRouter = require("./routes/cart");
 const orderRouter = require("./routes/order");
 const wishlistRouter = require("./routes/wishlist");
+const paymentRouter = require("./routes/payment");
 const cors = require('cors');
 
 //connection to database
@@ -36,6 +37,7 @@ app.use("/api/product",  productRouter);
 app.use("/api/cart", auth, cartRouter);
 app.use("/api/order", auth, orderRouter);
 app.use("/api/wishlist", auth, wishlistRouter);
+app.use("/api/payment", paymentRouter);
 
 
 app.use(notFound);
