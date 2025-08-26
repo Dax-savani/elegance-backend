@@ -29,7 +29,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: false}));
 
-//Routesss
+//Routes
 
 app.get("/", (req, res) => {
     res.send("Hello From Server this is elegance backend");
