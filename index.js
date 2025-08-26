@@ -19,10 +19,10 @@ const categoryRouter = require("./routes/category");
 const contactRouter = require("./routes/contact");
 const cors = require('cors');
 
-//connection to database
+//connection to databasee
 connectionDB(process.env.DB_CONNECTION_STRING);
 
-//Middlewares
+//Middlewaress
 
 app.use(cors());
 app.use(express.json());
