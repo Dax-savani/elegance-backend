@@ -7,7 +7,7 @@ const app = express();
 const dotenv = require("dotenv").config();
 const PORT = process.env.PORT || 4000;
 const cookieParser = require('cookie-parser')
-//routes
+//routesss
 const authRouter = require("./routes/auth");
 const productRouter = require("./routes/product");
 const offerRouter = require("./routes/offer");
