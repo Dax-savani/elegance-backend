@@ -19,17 +19,17 @@ const categoryRouter = require("./routes/category");
 const contactRouter = require("./routes/contact");
 const cors = require('cors');
 
-//connection to databasee
+//connection to database
 connectionDB(process.env.DB_CONNECTION_STRING);
 
-//Middlewaress
+//Middlewares
 
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: false}));
 
-//Routes
+//Routesss
 
 app.get("/", (req, res) => {
     res.send("Hello From Server this is elegance backend");
